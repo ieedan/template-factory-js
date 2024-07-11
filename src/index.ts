@@ -6,11 +6,11 @@ import {
 	outro,
 	text,
 	select,
-	confirm,
 	multiselect,
 	spinner,
+	confirm,
 } from '@clack/prompts';
-import { CreateOptions, Feature, Template, TemplateOptions } from './types';
+import { CreateOptions, Feature, Prompt, Selected, Template, TemplateOptions } from './types';
 import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
@@ -139,6 +139,10 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 		await template.copyCompleted({ projectName, dir });
 	}
 
+	if (template.prompts) {
+		await runPrompts(loading, template.prompts, { projectName, dir });
+	}
+
 	if (template.features) {
 		await enableFeatures(loading, template.features, { projectName, dir });
 	}
@@ -150,6 +154,49 @@ type Spinner = {
 	start: (msg?: string) => void;
 	stop: (msg?: string, code?: number) => void;
 	message: (msg?: string) => void;
+};
+
+const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOptions) => {
+	for (const prompt of prompts) {
+		if (prompt.kind == 'confirm') {
+			const conf = await confirm({
+				message: prompt.message,
+				initialValue: (prompt.initialValue as boolean) ?? false,
+			});
+
+			if (isCancel(conf)) {
+				cancel('Cancelled.');
+				process.exit(0);
+			}
+
+			if (conf && prompt.yes) {
+				await run(prompt.yes, loading, opts);
+			} else if (!conf && prompt.no) {
+				await run(prompt.no, loading, opts);
+			}
+		} else {
+			if (!prompt.options) throw new Error(`Select prompts must have specified options.`);
+			const selection = await select({
+				message: prompt.message,
+				initialValue: prompt.initialValue,
+				options: prompt.options.map((option) => ({
+					label: option.name,
+					value: option.name
+				})),
+			});
+
+			if (isCancel(selection)) {
+				cancel('Cancelled.');
+				process.exit(0);
+			}
+
+			for (const option of prompt.options) {
+				if (option.name != selection) continue;
+				
+				await run(option.select, loading, opts);
+			}
+		}
+	}
 };
 
 const enableFeatures = async (
@@ -179,16 +226,20 @@ const enableFeatures = async (
 
 		if (!featureSelection.includes(i)) continue;
 
-		loading.start(feature.enable.startMessage ?? `Setting up ${feature.name}`);
-
-		await feature.enable.run(opts);
-
-		loading.stop(feature.enable.endMessage ?? `Finished setup for ${feature.name}`);
+		await run(feature.enable, loading, opts);
 
 		if (feature.features) {
 			await enableFeatures(loading, feature.features, opts, feature.name);
 		}
 	}
+};
+
+const run = async (selected: Selected, loading: Spinner, opts: TemplateOptions) => {
+	loading.start(selected.startMessage);
+
+	await selected.run(opts);
+
+	loading.stop(selected.endMessage);
 };
 
 export { create };

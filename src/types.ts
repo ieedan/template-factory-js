@@ -16,6 +16,7 @@ export type Template = {
 	 *  any files/directories in your .gitignore file will be excluded.
 	 */
 	excludeFiles?: string[];
+	prompts?: Prompt[];
 	/** Here you can specify optional add-ons to the template */
 	features?: Feature[];
 	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
@@ -24,18 +25,32 @@ export type Template = {
 	copyCompleted?: (opts: TemplateOptions) => Promise<void>;
 };
 
+export type Prompt = {
+	/** What kind of prompt */
+	kind: PromptKind;
+	/** The initial value for the prompt */
+	initialValue?: unknown;
+	/** Message when prompt is shown */
+	message: string;
+	/** The options available for the prompt (only for `select` prompts) */
+	options?: PromptOption[];
+	yes?: Selected;
+	no?: Selected;
+};
+
+export type PromptKind = 'confirm' | 'select';
+
+export type PromptOption = {
+	/** Name of option */
+	name: string;
+	select: Selected;
+};
+
 export type Feature = {
-	/** Name of the features */
+	/** Name of the feature */
 	name: string;
 	/** Options for when the feature is enabled */
-	enable: {
-		/** Runs after feature selections have been made if the feature was enabled */
-		run: (opts: TemplateOptions) => Promise<void>;
-		/** Message shown while loading */
-		startMessage?: string;
-		/** Message shown when completed */
-		endMessage?: string;
-	};
+	enable: Selected;
 	/** Child features that can optionally be installed if this feature is installed */
 	features?: Feature[];
 };
@@ -81,4 +96,13 @@ export type CreateOptions = {
 	 *  If only a single template is provided it will skip asking the user to select a template.
 	 */
 	templates: Template[];
+};
+
+export type Selected = {
+	/** What to do when selected */
+	run: (opts: TemplateOptions) => Promise<void>;
+	/** Message shown while loading */
+	startMessage?: string;
+	/** Message shown when completed */
+	endMessage?: string;
 };
