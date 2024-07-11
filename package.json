@@ -1,0 +1,49 @@
+{
+	"name": "ez-template-js",
+	"version": "0.1.0",
+	"description": "An unreasonably easy way to create distributable project templates.",
+	"readme": "README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ieedan/ez-template-js"
+	},
+	"main": "./dist/index.mjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./dist/index.d.ts"
+			]
+		}
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs"
+		}
+	},
+	"sideEffects": false,
+	"type": "module",
+	"scripts": {
+		"format": "npx prettier . --write",
+		"build": "unbuild",
+		"check": "tsc --noEmit"
+	},
+	"keywords": ["template", "project", "cli"],
+	"author": "Aidan Bleser",
+	"license": "BSD-2-Clause",
+	"dependencies": {
+		"@clack/prompts": "^0.7.0",
+		"commander": "^12.1.0",
+		"fs-extra": "^11.2.0",
+		"ignore": "^5.3.1"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.4",
+		"prettier": "3.3.2",
+		"typescript": "^5.5.3",
+		"unbuild": "^2.0.0"
+	}
+}
