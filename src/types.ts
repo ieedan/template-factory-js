@@ -27,7 +27,10 @@ export type Template = {
 	prompts?: Prompt[];
 	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
 	templateFiles?: TemplateFile[];
-	/** Runs after files have been copied and replacements made but before features have been selected */
+	/** Runs after files have been copied and replacements made but before features have been selected
+	 * 
+	 *  This is generally a good place to generate files.
+	 */
 	copyCompleted?: (opts: TemplateOptions) => Promise<void>;
 };
 
