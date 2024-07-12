@@ -10,7 +10,7 @@ import {
 	spinner,
 	confirm,
 } from '@clack/prompts';
-import { CreateOptions, Feature, Prompt, Selected, Template, TemplateOptions } from './types';
+import { CreateOptions, Prompt, Selected, Template, TemplateOptions } from './types';
 import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
@@ -143,10 +143,6 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 		await runPrompts(loading, template.prompts, { projectName, dir });
 	}
 
-	if (template.features) {
-		await enableFeatures(loading, template.features, { projectName, dir });
-	}
-
 	outro('Your project is ready!');
 };
 
@@ -169,19 +165,35 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 				process.exit(0);
 			}
 
+			let selected: Selected;
+
 			if (conf && prompt.yes) {
-				await run(prompt.yes, loading, opts);
+				selected = prompt.yes;
 			} else if (!conf && prompt.no) {
-				await run(prompt.no, loading, opts);
+				selected = prompt.no;
+			} else {
+				// warn of invalid config
+				console.warn(
+					conf
+						? `A \`yes\` result was not specified in the configuration of: ${prompt.message}`
+						: `A \`no\` result was not specified in the configuration of: ${prompt.message}`
+				);
+				continue;
 			}
-		} else {
+
+			const prompts = await run(selected, loading, opts);
+
+			if (Array.isArray(prompts)) {
+				await runPrompts(loading, prompts, opts);
+			}
+		} else if (prompt.kind == 'select') {
 			if (!prompt.options) throw new Error(`Select prompts must have specified options.`);
 			const selection = await select({
 				message: prompt.message,
 				initialValue: prompt.initialValue,
-				options: prompt.options.map((option) => ({
+				options: prompt.options.map((option, index) => ({
 					label: option.name,
-					value: option.name
+					value: index,
 				})),
 			});
 
@@ -191,45 +203,46 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 			}
 
 			for (const option of prompt.options) {
+				// we don't compare by index here because initial value is important
 				if (option.name != selection) continue;
-				
-				await run(option.select, loading, opts);
+
+				const prompts = await run(option.select, loading, opts);
+
+				if (Array.isArray(prompts)) {
+					await runPrompts(loading, prompts, opts);
+				}
+
+				break;
 			}
-		}
-	}
-};
+		} else if (prompt.kind == 'multiselect') {
+			if (!prompt.options)
+				throw new Error(`multiselect prompts must have specified options.`);
 
-const enableFeatures = async (
-	loading: Spinner,
-	features: Feature[],
-	opts: TemplateOptions,
-	parent: string | undefined = undefined
-) => {
-	const featureSelection = await multiselect({
-		message: parent
-			? `What features should be included with ${parent}?`
-			: 'What features should be included?',
-		required: false,
-		options: features.map((feature, index) => ({
-			label: feature.name,
-			value: index,
-		})),
-	});
+			const selection = await multiselect({
+				message: prompt.message,
+				required: prompt.required,
+				initialValues: Array.isArray(prompt.initialValue) ? prompt.initialValue : [],
+				options: prompt.options.map((option) => ({
+					label: option.name,
+					value: option.name,
+				})),
+			});
 
-	if (isCancel(featureSelection)) {
-		cancel('Cancelled.');
-		process.exit(0);
-	}
+			if (isCancel(selection)) {
+				cancel('Cancelled.');
+				process.exit(0);
+			}
 
-	for (let i = 0; i < features.length; i++) {
-		const feature = features[i];
+			for (const option of prompt.options) {
+				// we don't compare by index here because initial value is important
+				if (!selection.includes(option.name)) continue;
 
-		if (!featureSelection.includes(i)) continue;
+				const prompts = await run(option.select, loading, opts);
 
-		await run(feature.enable, loading, opts);
-
-		if (feature.features) {
-			await enableFeatures(loading, feature.features, opts, feature.name);
+				if (Array.isArray(prompts)) {
+					await runPrompts(loading, prompts, opts);
+				}
+			}
 		}
 	}
 };
@@ -237,9 +250,11 @@ const enableFeatures = async (
 const run = async (selected: Selected, loading: Spinner, opts: TemplateOptions) => {
 	loading.start(selected.startMessage);
 
-	await selected.run(opts);
+	const prompts = await selected.run(opts);
 
 	loading.stop(selected.endMessage);
+
+	return prompts;
 };
 
 export { create };

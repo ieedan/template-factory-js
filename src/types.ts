@@ -16,9 +16,8 @@ export type Template = {
 	 *  any files/directories in your .gitignore file will be excluded.
 	 */
 	excludeFiles?: string[];
+	/** Specify prompts that are used to select options or features */
 	prompts?: Prompt[];
-	/** Here you can specify optional add-ons to the template */
-	features?: Feature[];
 	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
 	templateFiles?: TemplateFile[];
 	/** Runs after files have been copied and replacements made but before features have been selected */
@@ -28,17 +27,22 @@ export type Template = {
 export type Prompt = {
 	/** What kind of prompt */
 	kind: PromptKind;
-	/** The initial value for the prompt */
-	initialValue?: unknown;
+	/** The initial value for the prompt 
+	 * 
+	 *  For multiselect prompts this will be an array of option names
+	*/
+	initialValue?: unknown | unknown[];
 	/** Message when prompt is shown */
 	message: string;
-	/** The options available for the prompt (only for `select` prompts) */
+	/** Determines whether the user must select an option (only for `multiselect` prompts) */
+	required?: boolean;
+	/** The options available for the prompt (only for `select` or `multiselect` prompts) */
 	options?: PromptOption[];
 	yes?: Selected;
 	no?: Selected;
 };
 
-export type PromptKind = 'confirm' | 'select';
+export type PromptKind = 'confirm' | 'select' | 'multiselect';
 
 export type PromptOption = {
 	/** Name of option */
@@ -46,13 +50,16 @@ export type PromptOption = {
 	select: Selected;
 };
 
-export type Feature = {
-	/** Name of the feature */
-	name: string;
-	/** Options for when the feature is enabled */
-	enable: Selected;
-	/** Child features that can optionally be installed if this feature is installed */
-	features?: Feature[];
+export type Selected = {
+	/** What to do when selected.
+	 * 
+	 *  To run more prompts dependent on this one return a list of prompts.
+	 */
+	run: (opts: TemplateOptions) => Promise<Prompt[] | void>;
+	/** Message shown while loading */
+	startMessage?: string;
+	/** Message shown when completed */
+	endMessage?: string;
 };
 
 export type TemplateFile = {
@@ -96,13 +103,4 @@ export type CreateOptions = {
 	 *  If only a single template is provided it will skip asking the user to select a template.
 	 */
 	templates: Template[];
-};
-
-export type Selected = {
-	/** What to do when selected */
-	run: (opts: TemplateOptions) => Promise<void>;
-	/** Message shown while loading */
-	startMessage?: string;
-	/** Message shown when completed */
-	endMessage?: string;
 };
