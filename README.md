@@ -176,7 +176,7 @@ the project to get you started but if you want to see full scale examples you sh
 Here are some examples of the power of **template-factory-js**. If you would like to contribute one
 let us know 😉!
 
-- [@ieedan/templates](https://github.com/ieedan/templates) Personal project templates for
+- [@iedan/create](https://github.com/ieedan/create) Personal project templates for
   [@ieedan](https://github.com/ieedan)
 
 ## API Reference
