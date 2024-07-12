@@ -31,12 +31,18 @@
 		"build": "unbuild",
 		"check": "tsc --noEmit"
 	},
-	"keywords": ["template", "project", "cli"],
+	"keywords": [
+		"template",
+		"project",
+		"cli"
+	],
 	"author": "Aidan Bleser",
 	"license": "BSD-2-Clause",
 	"dependencies": {
 		"@clack/prompts": "^0.7.0",
 		"commander": "^12.1.0",
+		"detect-package-manager": "^3.0.2",
+		"execa": "^9.3.0",
 		"fs-extra": "^11.2.0",
 		"ignore": "^5.3.1"
 	},

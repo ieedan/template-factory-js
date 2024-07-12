@@ -183,7 +183,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 
 			const prompts = await run(selected, loading, opts);
 
-			if (Array.isArray(prompts)) {
+			if (prompts) {
 				await runPrompts(loading, prompts, opts);
 			}
 		} else if (prompt.kind == 'select') {
@@ -191,9 +191,9 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 			const selection = await select({
 				message: prompt.message,
 				initialValue: prompt.initialValue,
-				options: prompt.options.map((option, index) => ({
+				options: prompt.options.map((option) => ({
 					label: option.name,
-					value: index,
+					value: option.name,
 				})),
 			});
 
@@ -208,7 +208,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 
 				const prompts = await run(option.select, loading, opts);
 
-				if (Array.isArray(prompts)) {
+				if (prompts) {
 					await runPrompts(loading, prompts, opts);
 				}
 
@@ -220,7 +220,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 
 			const selection = await multiselect({
 				message: prompt.message,
-				required: prompt.required,
+				required: prompt.required ?? false,
 				initialValues: Array.isArray(prompt.initialValue) ? prompt.initialValue : [],
 				options: prompt.options.map((option) => ({
 					label: option.name,
@@ -239,7 +239,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 
 				const prompts = await run(option.select, loading, opts);
 
-				if (Array.isArray(prompts)) {
+				if (prompts) {
 					await runPrompts(loading, prompts, opts);
 				}
 			}
