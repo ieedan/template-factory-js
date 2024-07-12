@@ -11,6 +11,7 @@ import {
 	confirm,
 } from '@clack/prompts';
 import { CreateOptions, Prompt, Selected, Template, TemplateOptions } from './types';
+import color from 'chalk';
 import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
@@ -22,9 +23,16 @@ type Spinner = {
 	message: (msg?: string) => void;
 };
 
-const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) => {
+const create = async ({
+	appName,
+	version,
+	customization,
+	respectGitIgnore,
+	templates,
+}: CreateOptions) => {
 	program
 		.name(appName)
+		.version(version)
 		.argument('[project-name]', 'Name of the project')
 		.addOption(
 			new Option('-t, --template <name>', 'Template').choices(
@@ -36,7 +44,18 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 
 	const options = program.opts();
 
-	intro(appName);
+	let message = '';
+
+	if (customization?.intro) {
+		message = await customization.intro({ appName, version })
+	} else {
+		const title = color.bgHex("#303030").white(` ${appName} `);
+		const ver = color.gray(` v${version} `);
+
+		message = title + ver;
+	}
+
+	intro(message);
 
 	// setup spinner
 
@@ -64,6 +83,8 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 		} else {
 			projectName = path.basename(dirResult);
 		}
+
+		dir = projectName;
 	}
 
 	if (dir != '.' && !(await fs.exists(dir))) {
@@ -75,7 +96,7 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 	if (!empty) {
 		const cont = await confirm({ message: 'Directory is not empty continue?' });
 
-		if (!cont) {
+		if (isCancel(cont) || !cont) {
 			cancel('Cancelled.');
 			process.exit(0);
 		}
@@ -173,7 +194,7 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 		await runPrompts(loading, template.prompts, { projectName, dir });
 	}
 
-	outro('Your project is ready!');
+	outro(customization?.outro ? await customization.outro({ appName, version }) : "You're all set!");
 };
 
 const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOptions) => {
@@ -196,12 +217,6 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 			} else if (!conf && prompt.no) {
 				selected = prompt.no;
 			} else {
-				// warn of invalid config
-				console.warn(
-					conf
-						? `A \`yes\` result was not specified in the configuration of: ${prompt.message}`
-						: `A \`no\` result was not specified in the configuration of: ${prompt.message}`
-				);
 				continue;
 			}
 

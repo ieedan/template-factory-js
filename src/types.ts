@@ -11,11 +11,11 @@ export type Template = {
 	/** Path to the template from the root of your project */
 	path: string;
 	/** The value for the `-t` / `--template` used to select this template
-	 * 
-	 *  @example 
+	 *
+	 *  @example
 	 *  // should include no whitespace
 	 *  "sveltekit-starter"
-	*/
+	 */
 	flag: string;
 	/** Files/Directories that should be excluded from being copied
 	 *
@@ -110,4 +110,20 @@ export type CreateOptions = {
 	 *  If only a single template is provided it will skip asking the user to select a template.
 	 */
 	templates: Template[];
+	/** Version of your application
+	 *
+	 *  @example
+	 *  import { readPackage } from 'read-pkg';
+	 *
+	 *  // get the version of your project
+	 *  (await readPackage()).version;
+	 */
+	version: string;
+	/** Customizations for style of the program not effecting logic */
+	customization?: {
+		/** Runs on program startup this allows you to customize the message shown by the `intro()` function */
+		intro?: ({ appName, version }: { appName: string; version: string }) => Promise<string>;
+		/** Runs on program startup this allows you to customize the message shown by the `outro()` function */
+		outro?: ({ appName, version }: { appName: string; version: string }) => Promise<string>;
+	};
 };
