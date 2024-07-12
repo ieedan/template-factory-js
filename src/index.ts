@@ -47,9 +47,9 @@ const create = async ({
 	let message = '';
 
 	if (customization?.intro) {
-		message = await customization.intro({ appName, version })
+		message = await customization.intro({ appName, version });
 	} else {
-		const title = color.bgHex("#303030").white(` ${appName} `);
+		const title = color.bgHex('#303030').white(` ${appName} `);
 		const ver = color.gray(` v${version} `);
 
 		message = title + ver;
@@ -194,7 +194,9 @@ const create = async ({
 		await runPrompts(loading, template.prompts, { projectName, dir });
 	}
 
-	outro(customization?.outro ? await customization.outro({ appName, version }) : "You're all set!");
+	outro(
+		customization?.outro ? await customization.outro({ appName, version }) : "You're all set!"
+	);
 };
 
 const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOptions) => {

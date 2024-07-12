@@ -3,5 +3,16 @@
 	"tabWidth": 4,
 	"singleQuote": true,
 	"trailingComma": "es5",
-	"printWidth": 100
+	"printWidth": 100,
+	"overrides": [
+		{
+			"files": "*.md",
+			"options": {
+				"useTabs": false,
+				"printWidth": 100,
+				"tabWidth": 2,
+				"proseWrap": "always"
+			}
+		}
+	]
 }
