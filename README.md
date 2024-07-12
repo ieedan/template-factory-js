@@ -288,7 +288,7 @@ await create({
 });
 ```
 
-## Copy Completed
+### Copy Completed
 
 **template-factory** exposes a callback on every template called `copyCompleted` this is called with
 the working directory and project name once the template files have been copied over but before any
