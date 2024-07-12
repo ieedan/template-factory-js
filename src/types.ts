@@ -113,10 +113,7 @@ export type CreateOptions = {
 	/** Version of your application
 	 *
 	 *  @example
-	 *  import { readPackage } from 'read-pkg';
-	 *
-	 *  // get the version of your project
-	 *  (await readPackage()).version;
+	 *  const { version } = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
 	 */
 	version: string;
 	/** Customizations for style of the program not effecting logic */
