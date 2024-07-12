@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/5b77a29a-7a9f-4f45-bb9a-1a2810963bcd">
+</div>
+
 # template-factory-js
 
 ```bash
