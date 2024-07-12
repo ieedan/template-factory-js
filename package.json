@@ -1,11 +1,11 @@
 {
-	"name": "ez-template",
+	"name": "template-factory",
 	"version": "0.1.0",
 	"description": "An unreasonably easy way to create distributable project templates.",
 	"readme": "README.md",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ieedan/ez-template-js"
+		"url": "https://github.com/ieedan/template-factory-js"
 	},
 	"main": "./dist/index.mjs",
 	"module": "./dist/index.mjs",

@@ -10,6 +10,13 @@ export type Template = {
 	name: string;
 	/** Path to the template from the root of your project */
 	path: string;
+	/** The value for the `-t` / `--template` used to select this template
+	 * 
+	 *  @example 
+	 *  // should include no whitespace
+	 *  "sveltekit-starter"
+	*/
+	flag: string;
 	/** Files/Directories that should be excluded from being copied
 	 *
 	 *  This uses .gitignore syntax. If you haven't set respectGitIgnore to false then
@@ -27,10 +34,10 @@ export type Template = {
 export type Prompt = {
 	/** What kind of prompt */
 	kind: PromptKind;
-	/** The initial value for the prompt 
-	 * 
+	/** The initial value for the prompt
+	 *
 	 *  For multiselect prompts this will be an array of option names
-	*/
+	 */
 	initialValue?: unknown | unknown[];
 	/** Message when prompt is shown */
 	message: string;
@@ -51,14 +58,14 @@ export type PromptOption = {
 };
 
 export type Selected = {
-	/** What to do when selected.
-	 * 
+	/** Custom code to run when this selection was made by the user.
+	 *
 	 *  To run more prompts dependent on this one return a list of prompts.
 	 */
 	run: (opts: TemplateOptions) => Promise<Prompt[] | void>;
-	/** Message shown while loading */
+	/** Message shown while `run` function is executing (not shown while running child prompts) */
 	startMessage?: string;
-	/** Message shown when completed */
+	/** Message shown when `run` function is done (not shown while running child prompts) */
 	endMessage?: string;
 };
 

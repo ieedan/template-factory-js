@@ -1,4 +1,4 @@
-import { program } from 'commander';
+import { Option, program } from 'commander';
 import {
 	isCancel,
 	cancel,
@@ -15,10 +15,26 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
 
+/** Just here for internal functions */
+type Spinner = {
+	start: (msg?: string) => void;
+	stop: (msg?: string, code?: number) => void;
+	message: (msg?: string) => void;
+};
+
 const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) => {
-	program.name(appName).argument('[project-name]', 'Name of the project');
+	program
+		.name(appName)
+		.argument('[project-name]', 'Name of the project')
+		.addOption(
+			new Option('-t, --template <name>', 'Template').choices(
+				templates.map((template) => template.flag)
+			)
+		);
 
 	program.parse();
+
+	const options = program.opts();
 
 	intro(appName);
 
@@ -65,27 +81,41 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 		}
 	}
 
-	let template: Template;
+	let template: Template | undefined = undefined;
 
 	// No need to ask if there is only a single template
 	if (templates.length == 1) {
 		template = templates[0];
 	} else {
-		const templateSelection = await select({
-			message: 'What template should we use?',
-			options: templates.map((template, index) => ({
-				label: template.name,
-				value: index,
-			})),
-		});
-
-		if (isCancel(templateSelection)) {
-			cancel('Cancelled.');
-			process.exit(0);
+		let specifiedByFlag = false;
+		for (const temp of templates) {
+			if (temp.flag == options.template) {
+				template = temp;
+				specifiedByFlag = true;
+				break;
+			}
 		}
 
-		template = templates[templateSelection as number];
+		if (!specifiedByFlag) {
+			const templateSelection = await select({
+				message: 'What template should we use?',
+				options: templates.map((template, index) => ({
+					label: template.name,
+					value: index,
+				})),
+			});
+
+			if (isCancel(templateSelection)) {
+				cancel('Cancelled.');
+				process.exit(0);
+			}
+
+			template = templates[templateSelection as number];
+		}
 	}
+
+	// this shouldn't happen but its here for TS
+	if (!template) return;
 
 	const ig = ignore();
 
@@ -144,12 +174,6 @@ const create = async ({ appName, respectGitIgnore, templates }: CreateOptions) =
 	}
 
 	outro('Your project is ready!');
-};
-
-type Spinner = {
-	start: (msg?: string) => void;
-	stop: (msg?: string, code?: number) => void;
-	message: (msg?: string) => void;
 };
 
 const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOptions) => {
@@ -258,3 +282,5 @@ const run = async (selected: Selected, loading: Spinner, opts: TemplateOptions) 
 };
 
 export { create };
+
+export * from './types';
