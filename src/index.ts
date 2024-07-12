@@ -155,16 +155,15 @@ const create = async ({
 
 	loading.start(`Creating ${projectName}`);
 
-	await fs.copy(template.path, dir, {
-		filter: (file) => {
-			const filePath = path
-				.normalize(file)
-				.toString()
-				.replaceAll(path.normalize(template.path + '\\'), '');
+	const files = await fs.readdir(template.path);
+	
+	for (const file of files) {
+		if (ig.ignores(file)) continue;
 
-			return !ig.ignores(filePath);
-		},
-	});
+		const filePath = path.join(template.path, file);
+
+		await fs.copy(filePath, path.join(dir, file));
+	}
 
 	loading.stop(`Created ${projectName}`);
 
