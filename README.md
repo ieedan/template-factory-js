@@ -31,9 +31,6 @@ To start we will initialize a new templates project
 npm init -y
 ```
 
-> [!NOTE] 
-> Make sure to add `"type": "module",` to your package.json
-
 Setup the file structure
 
 ```
@@ -41,8 +38,7 @@ my-template-project
 ├── templates
 │   └── sveltekit
 │       ...
-├── src
-│   └── index.ts
+├── bin.js
 ├── package.json
 └── REAME.md
 ```
@@ -60,9 +56,10 @@ Start by installing **template-factory-js**
 npm install template-factory
 ```
 
-Next lets write the program in `index.js`
+Next lets write the program in `bin.mjs`
 
 ```js
+#!/usr/bin/env node
 import { create } from 'template-factory';
 
 const main = async () => {
@@ -85,7 +82,7 @@ main();
 Now run
 
 ```bash
-node src/index.js
+node bin.mjs
 ```
 
 Now you should see the CLI
@@ -104,7 +101,7 @@ The user can also run
 
 ```bash
 # passes `my-project` as the name of the project
-node src/index.js my-project
+node bin.mjs my-project
 ```
 
 This skips `Where should we create the project?` prompt and creates the project with the specified
@@ -117,6 +114,7 @@ Lets add a feature for `@threlte`.
 To do this we will need to add a [prompt](#prompts)!
 
 ```js
+#!/usr/bin/env node
 // we add execa here to make command execution easy
 import { execa } from 'execa';
 import { create } from 'template-factory';
@@ -151,7 +149,7 @@ const main = async () => {
 main();
 ```
 
-Now when you run `node src/index.js test` again it should look like this:
+Now when you run `node bin.mjs test` again it should look like this:
 
 ```bash
 ┌   guide  v1.0.0
