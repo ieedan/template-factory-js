@@ -5,11 +5,23 @@
 	"readme": "README.md",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ieedan/template-factory-js"
+		"url": "git+https://github.com/ieedan/template-factory-js.git"
 	},
 	"main": "./dist/index.mjs",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
+	"files": [
+		"dist",
+		"src",
+		"package.json",
+		"package-lock.json",
+		"README.md",
+		"tsconfig.json",
+		"LICENSE",
+		".prettierrc",
+		"build.config.ts",
+		".gitignore"
+	],
 	"typesVersions": {
 		"*": {
 			"*": [
