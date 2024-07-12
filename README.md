@@ -27,7 +27,7 @@ To start we will initialize a new templates project
 npm init -y
 ```
 
-> [!TIP] 
+> [!NOTE] 
 > Make sure to add `"type": "module",` to your package.json
 
 Setup the file structure
