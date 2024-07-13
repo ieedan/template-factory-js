@@ -12,7 +12,7 @@ An unreasonably easy way to create distributable project templates.
 
 ## What is this?
 
-Template factory is a package you install to help you scaffold a template application.
+**template-factory** is a package you install to help you scaffold a template application.
 
 It provides a consistent way to structure your CLI application as well as helpful features such as
 file exclusions or replacements.
@@ -162,9 +162,9 @@ To see more about prompts check our [API Reference](#api-reference)
 
 ## Examples
 
-We provide some [basic examples](https://github.com/ieedan/template-factory-js/tree/main/examples) with
-the project to get you started but if you want to see full scale examples you should check out the
-[Community Examples](#community-examples)
+We provide some [basic examples](https://github.com/ieedan/template-factory-js/tree/main/examples)
+with the project to get you started but if you want to see full scale examples you should check out
+the [Community Examples](#community-examples)
 
 ## Community Examples
 
@@ -408,11 +408,15 @@ await create({
 ```
 
 ### Handling Errors
-Handling errors is somewhat difficult thanks to the way they work in JavaScript as well as commanders overrides. 
 
-Because of this in any of the functions defined by you such as `copyCompleted` or `run` functions we pass an `error` function to allow you to write to the error console and stop program execution.
+Handling errors is somewhat difficult thanks to the way they work in JavaScript as well as
+commanders overrides.
+
+Because of this in any of the functions defined by you such as `copyCompleted` or `run` functions we
+pass an `error` function to allow you to write to the error console and stop program execution.
 
 That looks something like this:
+
 ```ts
 await create({
   //...
@@ -425,7 +429,7 @@ await create({
         const file = path.join(dir, 'README.md');
 
         // handle error on code that can error
-        await fs.readFile(file, content).catch(err => error(err));
+        await fs.readFile(file, content).catch((err) => error(err));
       },
     },
   ],
@@ -433,21 +437,24 @@ await create({
 ```
 
 ### Util
+
 Util contains necessary utilities to use the package.
 
 #### util.relative
-This function helps make sure your paths to your templates or other files that should be located based on the directory of your project are resolved correctly.
+
+This function helps make sure your paths to your templates or other files that should be located
+based on the directory of your project are resolved correctly.
 
 ```ts
- await create({
-    //..
-    templates: [
-      {
-        name: 'SvelteKit',
-        // resolves to the absolute path for templates/sveltekit
-        path: util.relative('templates/sveltekit', import.meta.url),
-        flag: 'sveltekit',
-      },
-    ],
-  });
+await create({
+  //..
+  templates: [
+    {
+      name: 'SvelteKit',
+      // resolves to the absolute path for templates/sveltekit
+      path: util.relative('templates/sveltekit', import.meta.url),
+      flag: 'sveltekit',
+    },
+  ],
+});
 ```
