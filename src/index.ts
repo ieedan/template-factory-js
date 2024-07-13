@@ -82,9 +82,8 @@ const create = async ({
 			projectName = path.basename(process.cwd());
 		} else {
 			projectName = path.basename(dirResult);
+			dir = projectName;
 		}
-
-		dir = projectName;
 	}
 
 	if (dir != '.' && !(await fs.exists(dir))) {
