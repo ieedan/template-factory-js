@@ -23,7 +23,7 @@ This will take you though setting up a basic SvelteKit template. Don't worry you
 anything about SvelteKit to complete the tutorial.
 
 The complete code for this guide is under
-[/examples/guide](https://github.com/ieedan/template-factory-js/tree/main/examples/guide).
+[/examples/javascript](https://github.com/ieedan/template-factory-js/tree/main/examples/javascript).
 
 The easiest way to get started is to use a template.
 [@iedan/create](https://github.com/ieedan/create) has a template for this.
@@ -194,9 +194,9 @@ options to add to your templates extremely easy.
 
 There are currently three kinds of prompts:
 
-- confirm - yes or no
-- multiselect - select zero, one, or multiple of the provided options
-- select - select one of the provided options
+- **confirm** - yes or no
+- **multiselect** - select zero, one, or multiple of the provided options
+- **select** - select one of the provided options
 
 When creating a prompt you add it to the list of prompts for your template:
 
