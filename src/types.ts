@@ -20,7 +20,13 @@ export type Template = {
 	 *  }
 	 *  ```
 	 */
-	path: string;
+	path?: string;
+	/** Repository to clone as a template 
+	 * 
+	 *  @example
+	 *  'https://github.com/ieedan/create.git
+	 */
+	repo?: string;
 	/** The value for the `-t` / `--template` used to select this template
 	 *
 	 *  @example
@@ -34,7 +40,10 @@ export type Template = {
 	 *  any files/directories in your .gitignore file will be excluded.
 	 */
 	excludeFiles?: string[];
-	/** Specify prompts that are used to select options or features */
+	/** Specify prompts that are used to select options or features 
+	 * 
+	 *  [API Reference](https://github.com/ieedan/template-factory-js?tab=readme-ov-file#prompts)
+	*/
 	prompts?: Prompt[];
 	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
 	templateFiles?: TemplateFile[];

@@ -16,6 +16,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
 import util from './util';
+import simpleGit from 'simple-git';
 
 /** Just here for internal functions */
 type Spinner = {
@@ -83,12 +84,12 @@ const create = async ({
 			projectName = path.basename(process.cwd());
 		} else {
 			projectName = path.basename(dirResult);
-			dir = projectName;
+			dir = dirResult;
 		}
 	}
 
 	if (dir != '.' && !(await fs.exists(dir))) {
-		await fs.mkdir(dir);
+		await fs.mkdir(dir, { recursive: true });
 	}
 
 	const templateOptions: TemplateOptions = {
@@ -144,11 +145,15 @@ const create = async ({
 	// this shouldn't happen but its here for TS
 	if (!template) return;
 
-	if (!(await fs.exists(template.path))) {
+	if (template.path == undefined && template.repo == undefined) {
 		program.error(
-			`ERROR: The template '${template.name}' was configured with an incorrect path: "${template.path}". "${template.path}" does not exist.`
+			color.red(
+				`ERROR: Either the 'path' or the 'repo' must be configured on the template ${template.name}`
+			)
 		);
 	}
+
+	loading.start(`Creating ${projectName}`);
 
 	const ig = ignore();
 
@@ -156,25 +161,54 @@ const create = async ({
 		ig.add(template.excludeFiles);
 	}
 
-	// If respectGitIgnore is not provided or set to true use gitignore
-	if (respectGitIgnore == undefined || respectGitIgnore) {
-		const ignorePath = path.join(template.path, '.gitignore');
-
-		if (await fs.exists(ignorePath)) {
-			ig.add((await fs.readFile(ignorePath)).toString());
+	if (template.path) {
+		if (!(await fs.exists(template.path))) {
+			program.error(
+				color.red(
+					`ERROR: The template '${template.name}' was configured with an incorrect path: "${template.path}". "${template.path}" does not exist.`
+				)
+			);
 		}
-	}
 
-	loading.start(`Creating ${projectName}`);
+		// If respectGitIgnore is not provided or set to true use gitignore
+		if (respectGitIgnore == undefined || respectGitIgnore) {
+			const ignorePath = path.join(template.path, '.gitignore');
 
-	const files = await fs.readdir(template.path);
+			if (await fs.exists(ignorePath)) {
+				ig.add((await fs.readFile(ignorePath)).toString());
+			}
+		}
 
-	for (const file of files) {
-		if (ig.ignores(file)) continue;
+		const files = await fs.readdir(template.path);
 
-		const filePath = path.join(template.path, file);
+		for (const file of files) {
+			if (ig.ignores(file)) continue;
 
-		await fs.copy(filePath, path.join(dir, file));
+			const filePath = path.join(template.path, file);
+
+			await fs.copy(filePath, path.join(dir, file));
+		}
+	} else if (template.repo) {
+		try {
+			const git = simpleGit();
+
+			await git.clone(template.repo, dir);
+
+			// remove files that were supposed to be excluded
+			const files = await fs.readdir(dir);
+			
+			for (const file of files) {
+				if (!ig.ignores(file)) continue;
+
+				const fullPath = path.join(dir, file);
+
+				await fs.rm(fullPath, { recursive: true, force: true });
+			}
+		} catch (err) {
+			program.error(
+				color.red(`ERROR: While attempting to clone repo and error occurred\n${err}`)
+			);
+		}
 	}
 
 	loading.stop(`Created ${projectName}`);

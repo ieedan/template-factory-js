@@ -1,0 +1,16 @@
+{
+  "name": "from-repo",
+  "description": "",
+  "version": "1.0.0",
+  "author": "",
+  "main": "bin.mjs",
+  "bin": "./bin.mjs",
+  "scripts": {
+    "start": "node bin.mjs"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^11.2.0"
+  }
+}
