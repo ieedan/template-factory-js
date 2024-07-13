@@ -1,4 +1,4 @@
-import { create } from 'template-factory';
+import { create, util } from 'template-factory';
 import fs from 'fs-extra';
 
 const main = async () => {
@@ -13,7 +13,7 @@ const main = async () => {
 			{
 				name: 'Notes',
 				flag: 'notes',
-				path: new URL('templates/notes', import.meta.url).pathname.slice(1),
+				path: util.relative('templates/notes', import.meta.url),
 			},
 		],
 	});

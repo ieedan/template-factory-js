@@ -1,24 +1,25 @@
 {
-	"name": "typescript",
-	"description": "",
-	"version": "1.0.0",
-	"author": "",
-	"main": "bin.mjs",
-	"bin": "./bin.mjs",
-	"scripts": {
-		"start": "unbuild && node bin.mjs",
-		"build": "unbuild"
-	},
-	"keywords": [],
-	"license": "ISC",
-	"dependencies": {
-		"fs-extra": "^11.2.0",
-		"template-factory": "^0.1.3"
-	},
-	"devDependencies": {
-		"@types/fs-extra": "^11.0.4",
-		"prettier": "^3.3.2",
-		"typescript": "^5.5.3",
-		"unbuild": "^2.0.0"
-	}
+  "name": "typescript",
+  "description": "",
+  "version": "1.0.0",
+  "author": "",
+  "main": "bin.mjs",
+  "bin": "./bin.mjs",
+  "scripts": {
+    "start": "unbuild && node bin.mjs",
+    "build": "unbuild",
+    "format": "npx prettier . --write"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "template-factory": "^0.1.3"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.3",
+    "unbuild": "^2.0.0"
+  }
 }
