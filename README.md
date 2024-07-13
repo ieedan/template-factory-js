@@ -162,7 +162,7 @@ To see more about prompts check our [API Reference](#api-reference)
 
 ## Examples
 
-We provide some [basic examples](https://github.com/ieedan/template-factory-js/tree/main/src) with
+We provide some [basic examples](https://github.com/ieedan/template-factory-js/tree/main/examples) with
 the project to get you started but if you want to see full scale examples you should check out the
 [Community Examples](#community-examples)
 
