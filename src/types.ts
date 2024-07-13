@@ -3,6 +3,8 @@ export type TemplateOptions = {
 	dir: string;
 	/** Name of the project as entered by the user */
 	projectName: string;
+	/** Call this to stop execution and write the message to the console */
+	error: (msg: string) => void;
 };
 
 export type Template = {

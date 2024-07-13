@@ -406,3 +406,28 @@ await create({
   },
 });
 ```
+
+### Handling Errors
+Handling errors is somewhat difficult thanks to the way they work in JavaScript as well as commanders overrides. 
+
+Because of this in any of the functions defined by you such as `copyCompleted` or `run` functions we pass an `error` function to allow you to write to the error console and stop program execution.
+
+That looks something like this:
+```ts
+await create({
+  //...
+  templates: [
+    {
+      name: 'Notes',
+      //...
+      // add error function
+      copyCompleted: async ({ dir, projectName, error }) => {
+        const file = path.join(dir, 'README.md');
+
+        // handle error on code that can error
+        await fs.readFile(file, content).catch(err => error(err));
+      },
+    },
+  ],
+});
+```
