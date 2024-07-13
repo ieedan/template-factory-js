@@ -82,14 +82,19 @@ const create = async ({
 			projectName = path.basename(process.cwd());
 		} else {
 			projectName = path.basename(dirResult);
+			dir = projectName;
 		}
-
-		dir = projectName;
 	}
 
 	if (dir != '.' && !(await fs.exists(dir))) {
 		await fs.mkdir(dir);
 	}
+
+	const templateOptions: TemplateOptions = {
+		projectName,
+		dir,
+		error: (msg: string) => program.error(color.red(`ERROR: ${msg}`)),
+	};
 
 	const empty = (await fs.readdir(dir)).length == 0;
 
@@ -138,6 +143,12 @@ const create = async ({
 	// this shouldn't happen but its here for TS
 	if (!template) return;
 
+	if (!(await fs.exists(template.path))) {
+		program.error(
+			`ERROR: The template '${template.name}' was configured with an incorrect path: "${template.path}". "${template.path}" does not exist.`
+		);
+	}
+
 	const ig = ignore();
 
 	if (template.excludeFiles) {
@@ -156,7 +167,7 @@ const create = async ({
 	loading.start(`Creating ${projectName}`);
 
 	const files = await fs.readdir(template.path);
-	
+
 	for (const file of files) {
 		if (ig.ignores(file)) continue;
 
@@ -177,7 +188,7 @@ const create = async ({
 			file.replacements.forEach((replacement) => {
 				newContent = content.replace(
 					replacement.match,
-					replacement.replace({ projectName: projectName, dir })
+					replacement.replace(templateOptions)
 				);
 			});
 
@@ -186,11 +197,11 @@ const create = async ({
 	}
 
 	if (template.copyCompleted) {
-		await template.copyCompleted({ projectName, dir });
+		await template.copyCompleted(templateOptions);
 	}
 
 	if (template.prompts) {
-		await runPrompts(loading, template.prompts, { projectName, dir });
+		await runPrompts(loading, template.prompts, templateOptions);
 	}
 
 	outro(

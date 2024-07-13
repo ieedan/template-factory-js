@@ -3,12 +3,23 @@ export type TemplateOptions = {
 	dir: string;
 	/** Name of the project as entered by the user */
 	projectName: string;
+	/** Call this to stop execution and write the message to the console */
+	error: (msg: string) => void;
 };
 
 export type Template = {
 	/** Name of the template */
 	name: string;
-	/** Path to the template from the root of your project */
+	/** Path to the template from the root of your project
+	 *
+	 *  To make sure paths are resolved correctly please pass them like this:
+	 * 	```js
+	 * 	{
+	 * 		//...
+	 *  	path: new URL('templates/sveltekit', import.meta.url).pathname.slice(1)
+	 *  }
+	 *  ```
+	 */
 	path: string;
 	/** The value for the `-t` / `--template` used to select this template
 	 *
