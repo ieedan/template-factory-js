@@ -8,7 +8,16 @@ export type TemplateOptions = {
 export type Template = {
 	/** Name of the template */
 	name: string;
-	/** Path to the template from the root of your project */
+	/** Path to the template from the root of your project
+	 *
+	 *  To make sure paths are resolved correctly please pass them like this:
+	 * 	```js
+	 * 	{
+	 * 		//...
+	 *  	path: new URL('templates/sveltekit', import.meta.url).pathname.slice(1)
+	 *  }
+	 *  ```
+	 */
 	path: string;
 	/** The value for the `-t` / `--template` used to select this template
 	 *

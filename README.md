@@ -25,38 +25,33 @@ anything about SvelteKit to complete the tutorial.
 The complete code for this guide is under
 [/examples/guide](https://github.com/ieedan/template-factory-js/tree/main/examples/guide).
 
-To start we will initialize a new templates project
+The easiest way to get started is to use a template.
+[@iedan/create](https://github.com/ieedan/create) has a template for this.
 
 ```bash
-npm init -y
+npx @iedan/create -t template-factory
 ```
 
-Setup the file structure
+Take the path for JavaScript and you'll end up with a file structure like this:
 
 ```
 my-template-project
 ├── templates
-│   └── sveltekit
-│       ...
-├── bin.js
-├── package.json
-└── REAME.md
+│   └── notes
+│       └── NOTES.md
+├── ...
+├── bin.mjs
+└── package.json
 ```
 
-This structure is optional but recommended to keep things organized.
-
-Your project templates will go under `/templates` in this case we have a `sveltekit` template that
-we have initialized using `npm create svelte@latest`.
-
-Lets make it so we can install this template.
-
-Start by installing **template-factory-js**
+Delete the notes directory and lets create the SvelteKit project instead:
 
 ```bash
-npm install template-factory
+# under ./templates
+npm create svelte@latest sveltekit
 ```
 
-Next lets write the program in `bin.mjs`
+Next lets write the program in `bin.mjs` (If you are using TypeScript then `index.ts`).
 
 ```js
 #!/usr/bin/env node
@@ -69,7 +64,8 @@ const main = async () => {
     templates: [
       {
         name: 'SvelteKit',
-        path: 'templates/sveltekit',
+        // we have to pass it this way so that it resolves correctly in production
+        path: new URL('templates/sveltekit', import.meta.url).pathname.slice(1),
         flag: 'sveltekit',
       },
     ],
@@ -82,7 +78,7 @@ main();
 Now run
 
 ```bash
-node bin.mjs
+npm run start
 ```
 
 Now you should see the CLI
@@ -101,7 +97,7 @@ The user can also run
 
 ```bash
 # passes `my-project` as the name of the project
-node bin.mjs my-project
+npm run start my-project
 ```
 
 This skips `Where should we create the project?` prompt and creates the project with the specified
@@ -126,7 +122,8 @@ const main = async () => {
     templates: [
       {
         name: 'SvelteKit',
-        path: 'templates/sveltekit',
+        // we have to pass it this way so that it resolves correctly in production
+        path: new URL('templates/sveltekit', import.meta.url).pathname.slice(1),
         flag: 'sveltekit',
         prompts: [
           {
@@ -149,7 +146,7 @@ const main = async () => {
 main();
 ```
 
-Now when you run `node bin.mjs test` again it should look like this:
+Now when you run the program again it should look like this:
 
 ```bash
 ┌   guide  v1.0.0
