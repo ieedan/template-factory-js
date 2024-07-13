@@ -190,102 +190,161 @@ template.
 Prompts are a huge part of what makes **template-factory** useful. It makes defining features and
 options to add to your templates extremely easy.
 
-For example what if we wanted to optionally add a dependency to a package?
+#### Prompt Kinds
 
-It would look something like this:
+There are currently three kinds of prompts:
 
-```js
+- confirm - yes or no
+- multiselect - select zero, one, or multiple of the provided options
+- select - select one of the provided options
+
+When creating a prompt you add it to the list of prompts for your template:
+
+```ts
 await create({
   //...
   templates: [
     {
-      name: 'Notes',
       //...
       prompts: [
-        {
-          kind: 'confirm',
-          message: 'Would you like to install lodash?',
-          // set initial value for the prompt
-          initialValue: false,
-          yes: {
-            // run your code here
-            run: async ({ dir }) => {
-              // install lodash
-            },
-            // shown while awaiting `run`
-            startMessage: 'Installing lodash',
-            // shown once `run` is done
-            endMessage: 'Installed lodash',
-          },
-        },
+        // add your prompt here
       ],
     },
   ],
 });
 ```
 
-This is pretty useful on its own but what if we want to install a package that may have plugins or
-other supporting dependencies? Then we would want to ask the user if they want to install those as
-well.
-
-To create a prompt dependent on the result of another prompt we can return more prompts as the
-result of the `run` function of the original prompt.
-
-For instance installing `@threlte`:
+You must specify the kind of prompt and a message for the prompt to display (should be a question).
 
 ```js
-await create({
-  //...
-  templates: [
-    {
-      name: 'Notes',
-      //...
-      prompts: [
-        {
-          kind: 'multiselect',
-          message: 'What features should be included?',
-          options: [
-            {
-              name: 'Threlte',
-              select: {
-                run: async ({ dir }) => {
-                  // install threlte
+prompts: [
+  {
+    kind: 'confirm',
+    message: 'Would you like to install lodash?',
+  },
+],
+```
 
-                  // return an array of prompts to run
-                  return [
-                    {
-                      message: 'Do you want to install any other @threlte packages?',
-                      kind: 'multiselect',
-                      options: [
-                        '@threlte/extras',
-                        '@threlte/gltf',
-                        '@threlte/rapier',
-                        '@threlte/theatre',
-                        '@threlte/xr',
-                        '@threlte/flex',
-                      ].map((pack) => ({
-                        name: pack,
-                        select: {
-                          run: async ({ dir }) => {
-                            // install package
-                          },
-                          startMessage: `Installing ${pack}`,
-                          endMessage: `Installed ${pack}`,
-                        },
-                      })),
-                    },
-                  ];
-                },
-                startMessage: 'Installing @threlte/core, three, and @types/three',
-                endMessage: 'Installed Threlte',
-              },
-            },
-          ],
-        },
-      ],
+Once you have done that you need to specify the code that will run when an option is selected.
+
+For **confirm** prompts that should look like this:
+
+```js
+{
+  kind: 'confirm',
+  message: 'Would you like to install lodash?',
+  // set initial value for the prompt
+  initialValue: false,
+  // what to do on `yes`
+  yes: {
+    // run your code here
+    run: async ({ dir }) => {
+      // install lodash
     },
-  ],
-});
+    // shown while awaiting `run`
+    startMessage: 'Installing lodash',
+    // shown once `run` is done
+    endMessage: 'Installed lodash',
+  },
+  // what to do on `no`
+  no: {
+    // structure is the same as yes
+  },
+}
+```
+
+For **select** and **multiselect** prompts your code should look like this:
+
+```js
+{
+  kind: 'multiselect', // or multiselect
+  message: 'What features should we include?',
+  // set initial value for the prompt
+  initialValue: ["prettier"],
+  options: [
+    {
+      name: "prettier",
+      // what to do when selected
+      select: {
+        run: async ({ dir }) => {
+          // install prettier
+        },
+        // shown while awaiting `run`
+        startMessage: 'Installing prettier',
+        // shown once `run` is done
+        endMessage: 'Installed prettier',
+      }
+    },
+    {
+      name: "eslint",
+      // what to do when selected
+      select: {
+        run: async ({ dir }) => {
+          // install eslint
+        },
+        // shown while awaiting `run`
+        startMessage: 'Installing eslint',
+        // shown once `run` is done
+        endMessage: 'Installed eslint',
+      }
+    }
+  ]
+}
+```
+
+#### Recursive Prompts
+
+Recursive prompts allow you to run prompts on prompts. This is useful when you would like to create
+prompts that will only be shown to the user if a specific selection is made.
+
+To do this you return more prompts from the `run` function of the parent prompt.
+
+The result looks something like this:
+
+```js
+prompts: [
+  {
+    kind: 'multiselect',
+    message: 'What features should be included?',
+    options: [
+      {
+        name: 'Threlte',
+        select: {
+          run: async ({ dir }) => {
+            // install threlte
+
+            // return an array of prompts to run
+            return [
+              {
+                message: 'Do you want to install any other @threlte packages?',
+                kind: 'multiselect',
+                options: [
+                  '@threlte/extras',
+                  '@threlte/gltf',
+                  '@threlte/rapier',
+                  '@threlte/theatre',
+                  '@threlte/xr',
+                  '@threlte/flex',
+                ].map((pack) => ({
+                  name: pack,
+                  select: {
+                    run: async ({ dir }) => {
+                      // install package
+                    },
+                    startMessage: `Installing ${pack}`,
+                    endMessage: `Installed ${pack}`,
+                  },
+                })),
+              },
+            ];
+          },
+          startMessage: 'Installing @threlte/core, three, and @types/three',
+          endMessage: 'Installed Threlte',
+        },
+      },
+    ],
+  },
+],
 ```
 
 ### Copy Completed
