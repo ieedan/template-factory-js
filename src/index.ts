@@ -15,6 +15,7 @@ import color from 'chalk';
 import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
+import util from './util';
 
 /** Just here for internal functions */
 type Spinner = {
@@ -308,6 +309,6 @@ const run = async (selected: Selected, loading: Spinner, opts: TemplateOptions) 
 	return prompts;
 };
 
-export { create };
+export { create, util };
 
 export * from './types';

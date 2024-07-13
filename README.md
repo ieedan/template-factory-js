@@ -55,7 +55,7 @@ Next lets write the program in `bin.mjs` (If you are using TypeScript then `inde
 
 ```js
 #!/usr/bin/env node
-import { create } from 'template-factory';
+import { create, util } from 'template-factory';
 
 const main = async () => {
   await create({
@@ -65,7 +65,7 @@ const main = async () => {
       {
         name: 'SvelteKit',
         // we have to pass it this way so that it resolves correctly in production
-        path: new URL('templates/sveltekit', import.meta.url).pathname.slice(1),
+        path: util.relative('templates/sveltekit', import.meta.url),
         flag: 'sveltekit',
       },
     ],
@@ -113,7 +113,7 @@ To do this we will need to add a [prompt](#prompts)!
 #!/usr/bin/env node
 // we add execa here to make command execution easy
 import { execa } from 'execa';
-import { create } from 'template-factory';
+import { create, util } from 'template-factory';
 
 const main = async () => {
   await create({
@@ -123,7 +123,7 @@ const main = async () => {
       {
         name: 'SvelteKit',
         // we have to pass it this way so that it resolves correctly in production
-        path: new URL('templates/sveltekit', import.meta.url).pathname.slice(1),
+        path: util.relative('templates/sveltekit', import.meta.url),
         flag: 'sveltekit',
         prompts: [
           {
@@ -430,4 +430,24 @@ await create({
     },
   ],
 });
+```
+
+### Util
+Util contains necessary utilities to use the package.
+
+#### util.relative
+This function helps make sure your paths to your templates or other files that should be located based on the directory of your project are resolved correctly.
+
+```ts
+ await create({
+    //..
+    templates: [
+      {
+        name: 'SvelteKit',
+        // resolves to the absolute path for templates/sveltekit
+        path: util.relative('templates/sveltekit', import.meta.url),
+        flag: 'sveltekit',
+      },
+    ],
+  });
 ```
