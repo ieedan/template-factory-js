@@ -1,6 +1,6 @@
 {
 	"name": "template-factory",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "An unreasonably easy way to create distributable project templates.",
 	"readme": "README.md",
 	"repository": {
@@ -55,7 +55,8 @@
 		"chalk": "^5.3.0",
 		"commander": "^12.1.0",
 		"fs-extra": "^11.2.0",
-		"ignore": "^5.3.1"
+		"ignore": "^5.3.1",
+		"simple-git": "^3.25.0"
 	},
 	"devDependencies": {
 		"@types/fs-extra": "^11.0.4",

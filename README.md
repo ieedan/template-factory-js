@@ -179,6 +179,30 @@ let us know 😉!
 Any documentation for this library you'll find here! If anythings missing or unclear feel free to
 open an [issue](https://github.com/ieedan/template-factory-js/issues/new).
 
+### Templates
+When creating a template you must provide a name, flag and either the path or repo property.
+
+```ts
+export type Template = {
+  // Name of the template
+  name: string;
+  // local path to the template
+  path?: string;
+  // git repository EX: https://github.com/ieedan/create.git
+  repo?: string;
+  // what should the value of the flag be to select this template
+  flag: string;
+  // do not include these files in the new project
+  excludeFiles?: string[];
+  // Show user prompts to add options or features
+  prompts?: Prompt[];
+  // If you want to make replacements to content of the files
+  templateFiles?: TemplateFile[];
+  // Runs once the files have been copied to the specified directory
+  copyCompleted?: (opts: TemplateOptions) => Promise<void>;
+};
+```
+
 ### Multiple templates
 
 To have multiple templates in a single project just add them to the array! **template-factory-js**
