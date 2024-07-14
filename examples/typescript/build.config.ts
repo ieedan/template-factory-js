@@ -5,5 +5,4 @@ export default defineBuildConfig({
 	failOnWarn: false,
 	declaration: true,
 	clean: true,
-	outDir: '.',
 });

@@ -36,8 +36,11 @@ Take the path for JavaScript and you'll end up with a file structure like this:
 
 ```
 my-template-project
+├── src
+│   └── index.js
 ├── templates
 │   └── notes
+│       ├── template-files
 │       └── NOTES.md
 ├── ...
 ├── bin.mjs
@@ -51,7 +54,7 @@ Delete the notes directory and lets create the SvelteKit project instead:
 npm create svelte@latest sveltekit
 ```
 
-Next lets write the program in `bin.mjs` (If you are using TypeScript then `index.ts`).
+Next lets write the program in `index.js` (If you are using TypeScript then `index.ts`).
 
 ```js
 #!/usr/bin/env node
@@ -65,7 +68,8 @@ const main = async () => {
       {
         name: 'SvelteKit',
         // we have to pass it this way so that it resolves correctly in production
-        path: util.relative('templates/sveltekit', import.meta.url),
+        // we put '../' because it is relative to the index.js file
+        path: util.relative('../templates/sveltekit', import.meta.url),
         flag: 'sveltekit',
       },
     ],
@@ -123,7 +127,8 @@ const main = async () => {
       {
         name: 'SvelteKit',
         // we have to pass it this way so that it resolves correctly in production
-        path: util.relative('templates/sveltekit', import.meta.url),
+        // we put '../' because it is relative to the index.js file
+        path: util.relative('../templates/sveltekit', import.meta.url),
         flag: 'sveltekit',
         prompts: [
           {

@@ -1,4 +1,4 @@
-import { create, util } from 'template-factory';
+import { create } from 'template-factory';
 import fs from 'fs-extra';
 
 const main = async () => {
@@ -11,10 +11,9 @@ const main = async () => {
 		version: version,
 		templates: [
 			{
-				name: 'Notes',
-				flag: 'notes',
-				path: util.relative('../templates/notes', import.meta.url),
-				excludeFiles: ["template-files"]
+				name: 'Terminal',
+				flag: 'terminal',
+				repo: "https://github.com/ieedan/terminal.git"
 			},
 		],
 	});

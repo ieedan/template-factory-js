@@ -5,10 +5,10 @@
   "author": "",
   "main": "bin.mjs",
   "bin": "./bin.mjs",
+  "type": "module",
   "scripts": {
     "start": "unbuild && node bin.mjs",
-    "build": "unbuild",
-    "format": "npx prettier . --write"
+    "build": "unbuild"
   },
   "keywords": [],
   "license": "ISC",
@@ -18,7 +18,6 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "prettier": "^3.3.3",
     "typescript": "^5.5.3",
     "unbuild": "^2.0.0"
   }

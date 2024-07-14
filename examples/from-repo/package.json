@@ -5,12 +5,14 @@
   "author": "",
   "main": "bin.mjs",
   "bin": "./bin.mjs",
+  "type": "module",
   "scripts": {
     "start": "node bin.mjs"
   },
   "keywords": [],
   "license": "ISC",
   "dependencies": {
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "template-factory": "^0.1.3"
   }
 }
