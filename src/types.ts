@@ -23,8 +23,8 @@ export type Template<State = any> = {
 	 *  ```
 	 */
 	path?: string;
-	/** Repository to clone as a template 
-	 * 
+	/** Repository to clone as a template
+	 *
 	 *  @example
 	 *  'https://github.com/ieedan/create.git
 	 */
@@ -42,10 +42,10 @@ export type Template<State = any> = {
 	 *  any files/directories in your .gitignore file will be excluded.
 	 */
 	excludeFiles?: string[];
-	/** Specify prompts that are used to select options or features 
-	 * 
+	/** Specify prompts that are used to select options or features
+	 *
 	 *  [API Reference](https://github.com/ieedan/template-factory-js?tab=readme-ov-file#prompts)
-	*/
+	 */
 	prompts?: Prompt<State>[];
 	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
 	templateFiles?: TemplateFile<State>[];
@@ -76,6 +76,25 @@ export type Prompt<State> = {
 	options?: PromptOption<State>[];
 	yes?: Selected<State>;
 	no?: Selected<State>;
+	result?: {
+		/** Runs after any option or yes/no code will also run after any child prompts or 
+		 *  the option or yes/no code. 
+		 * 
+		 *  Useful when you need to operate with the result of a prompt.
+		 * 
+		 * @param result Result of the parent prompt
+		 * @param opts Options from the template
+		 * @returns 
+		 */
+		run: (
+			result: unknown | unknown[],
+			opts: TemplateOptions<State>
+		) => Promise<Prompt<State>[] | void>;
+		/** Message shown while `run` function is executing (not shown while running child prompts) */
+		startMessage?: string;
+		/** Message shown when `run` function is done (not shown while running child prompts) */
+		endMessage?: string;
+	};
 };
 
 export type PromptKind = 'confirm' | 'select' | 'multiselect';
@@ -83,7 +102,7 @@ export type PromptKind = 'confirm' | 'select' | 'multiselect';
 export type PromptOption<State> = {
 	/** Name of option */
 	name: string;
-	select: Selected<State>;
+	select?: Selected<State>;
 };
 
 export type Selected<State> = {
