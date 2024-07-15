@@ -402,11 +402,15 @@ const run = async <State>(
 	loading: Spinner,
 	opts: TemplateOptions<State>
 ) => {
-	loading.start(selected.startMessage);
+	if (selected.startMessage) {
+		loading.start(selected.startMessage);
+	}
 
 	const prompts = await selected.run(opts);
 
-	loading.stop(selected.endMessage);
+	if (selected.endMessage) {
+		loading.stop(selected.endMessage);
+	}
 
 	return prompts;
 };
