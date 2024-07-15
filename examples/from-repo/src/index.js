@@ -13,7 +13,7 @@ const main = async () => {
 			{
 				name: 'Terminal',
 				flag: 'terminal',
-				repo: "https://github.com/ieedan/terminal.git"
+				repo: 'https://github.com/ieedan/terminal.git',
 			},
 		],
 	});

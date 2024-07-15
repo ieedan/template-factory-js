@@ -92,12 +92,6 @@ const create = async ({
 		await fs.mkdir(dir, { recursive: true });
 	}
 
-	const templateOptions: TemplateOptions = {
-		projectName,
-		dir,
-		error: (msg: string) => program.error(color.red(`ERROR: ${msg}`)),
-	};
-
 	const empty = (await fs.readdir(dir)).length == 0;
 
 	if (!empty) {
@@ -144,6 +138,13 @@ const create = async ({
 
 	// this shouldn't happen but its here for TS
 	if (!template) return;
+
+	const templateOptions: TemplateOptions<typeof template.state> = {
+		projectName,
+		dir,
+		error: (msg: string) => program.error(color.red(`ERROR: ${msg}`)),
+		state: template.state,
+	};
 
 	if (template.path == undefined && template.repo == undefined) {
 		program.error(
@@ -196,7 +197,7 @@ const create = async ({
 
 			// remove files that were supposed to be excluded
 			const files = await fs.readdir(dir);
-			
+
 			for (const file of files) {
 				if (!ig.ignores(file)) continue;
 
@@ -236,15 +237,23 @@ const create = async ({
 	}
 
 	if (template.prompts) {
-		await runPrompts(loading, template.prompts, templateOptions);
+		await runPrompts(template.prompts, loading, templateOptions);
 	}
 
 	outro(
 		customization?.outro ? await customization.outro({ appName, version }) : "You're all set!"
 	);
+
+	if (template.completed) {
+		template.completed(templateOptions);
+	}
 };
 
-const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOptions) => {
+const runPrompts = async <State>(
+	prompts: Prompt<State>[],
+	loading: Spinner,
+	opts: TemplateOptions<State>
+) => {
 	for (const prompt of prompts) {
 		if (prompt.kind == 'confirm') {
 			const conf = await confirm({
@@ -257,7 +266,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 				process.exit(0);
 			}
 
-			let selected: Selected;
+			let selected: Selected<State>;
 
 			if (conf && prompt.yes) {
 				selected = prompt.yes;
@@ -270,7 +279,24 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 			const prompts = await run(selected, loading, opts);
 
 			if (prompts) {
-				await runPrompts(loading, prompts, opts);
+				await runPrompts(prompts, loading, opts);
+			}
+
+			if (prompt.result) {
+				const command: Selected<State> = {
+					run: async (opts) => {
+						if (!prompt.result) return;
+						return await prompt.result.run(conf, opts);
+					},
+					startMessage: prompt.result.startMessage,
+					endMessage: prompt.result.endMessage,
+				};
+
+				const resultPrompts = await run(command, loading, opts);
+
+				if (resultPrompts) {
+					await runPrompts(resultPrompts, loading, opts);
+				}
 			}
 		} else if (prompt.kind == 'select') {
 			if (!prompt.options) throw new Error(`Select prompts must have specified options.`);
@@ -292,13 +318,32 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 				// we don't compare by index here because initial value is important
 				if (option.name != selection) continue;
 
-				const prompts = await run(option.select, loading, opts);
+				if (option.select) {
+					const prompts = await run(option.select, loading, opts);
 
-				if (prompts) {
-					await runPrompts(loading, prompts, opts);
+					if (prompts) {
+						await runPrompts(prompts, loading, opts);
+					}
 				}
 
 				break;
+			}
+
+			if (prompt.result) {
+				const command: Selected<State> = {
+					run: async (opts) => {
+						if (!prompt.result) return;
+						return await prompt.result.run(selection, opts);
+					},
+					startMessage: prompt.result.startMessage,
+					endMessage: prompt.result.endMessage,
+				};
+
+				const resultPrompts = await run(command, loading, opts);
+
+				if (resultPrompts) {
+					await runPrompts(resultPrompts, loading, opts);
+				}
 			}
 		} else if (prompt.kind == 'multiselect') {
 			if (!prompt.options)
@@ -323,17 +368,40 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 				// we don't compare by index here because initial value is important
 				if (!selection.includes(option.name)) continue;
 
-				const prompts = await run(option.select, loading, opts);
+				if (option.select) {
+					const prompts = await run(option.select, loading, opts);
 
-				if (prompts) {
-					await runPrompts(loading, prompts, opts);
+					if (prompts) {
+						await runPrompts(prompts, loading, opts);
+					}
+				}
+			}
+
+			if (prompt.result) {
+				const command: Selected<State> = {
+					run: async (opts) => {
+						if (!prompt.result) return;
+						return await prompt.result.run(selection, opts);
+					},
+					startMessage: prompt.result.startMessage,
+					endMessage: prompt.result.endMessage,
+				};
+
+				const resultPrompts = await run(command, loading, opts);
+
+				if (resultPrompts) {
+					await runPrompts(resultPrompts, loading, opts);
 				}
 			}
 		}
 	}
 };
 
-const run = async (selected: Selected, loading: Spinner, opts: TemplateOptions) => {
+const run = async <State>(
+	selected: Selected<State>,
+	loading: Spinner,
+	opts: TemplateOptions<State>
+) => {
 	loading.start(selected.startMessage);
 
 	const prompts = await selected.run(opts);

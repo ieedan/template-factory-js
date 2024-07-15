@@ -185,6 +185,7 @@ Any documentation for this library you'll find here! If anythings missing or unc
 open an [issue](https://github.com/ieedan/template-factory-js/issues/new).
 
 ### Templates
+
 When creating a template you must provide a name, flag and either the path or repo property.
 
 ```ts

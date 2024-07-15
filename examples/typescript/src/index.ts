@@ -14,7 +14,7 @@ const main = async () => {
 				name: 'Notes',
 				flag: 'notes',
 				path: util.relative('../templates/notes', import.meta.url),
-				excludeFiles: ["template-files"]
+				excludeFiles: ['template-files'],
 			},
 		],
 	});
