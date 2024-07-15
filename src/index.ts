@@ -30,7 +30,7 @@ const create = async ({
 	version,
 	customization,
 	respectGitIgnore,
-	templates,
+	templates
 }: CreateOptions) => {
 	program
 		.name(appName)
@@ -92,12 +92,6 @@ const create = async ({
 		await fs.mkdir(dir, { recursive: true });
 	}
 
-	const templateOptions: TemplateOptions = {
-		projectName,
-		dir,
-		error: (msg: string) => program.error(color.red(`ERROR: ${msg}`)),
-	};
-
 	const empty = (await fs.readdir(dir)).length == 0;
 
 	if (!empty) {
@@ -144,6 +138,13 @@ const create = async ({
 
 	// this shouldn't happen but its here for TS
 	if (!template) return;
+
+	const templateOptions: TemplateOptions<typeof template.state> = {
+		projectName,
+		dir,
+		error: (msg: string) => program.error(color.red(`ERROR: ${msg}`)),
+		state: template.state
+	};
 
 	if (template.path == undefined && template.repo == undefined) {
 		program.error(
@@ -242,9 +243,13 @@ const create = async ({
 	outro(
 		customization?.outro ? await customization.outro({ appName, version }) : "You're all set!"
 	);
+
+	if (template.completed) {
+		template.completed(templateOptions);
+	}
 };
 
-const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOptions) => {
+const runPrompts = async <State>(loading: Spinner, prompts: Prompt<State>[], opts: TemplateOptions<State>) => {
 	for (const prompt of prompts) {
 		if (prompt.kind == 'confirm') {
 			const conf = await confirm({
@@ -257,7 +262,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 				process.exit(0);
 			}
 
-			let selected: Selected;
+			let selected: Selected<State>;
 
 			if (conf && prompt.yes) {
 				selected = prompt.yes;
@@ -333,7 +338,7 @@ const runPrompts = async (loading: Spinner, prompts: Prompt[], opts: TemplateOpt
 	}
 };
 
-const run = async (selected: Selected, loading: Spinner, opts: TemplateOptions) => {
+const run = async <State>(selected: Selected<State>, loading: Spinner, opts: TemplateOptions<State>) => {
 	loading.start(selected.startMessage);
 
 	const prompts = await selected.run(opts);

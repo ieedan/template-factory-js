@@ -1,13 +1,15 @@
-export type TemplateOptions = {
+export type TemplateOptions<State> = {
 	/** The directory of the new project */
 	dir: string;
 	/** Name of the project as entered by the user */
 	projectName: string;
 	/** Call this to stop execution and write the message to the console */
 	error: (msg: string) => void;
+	/** Your template state */
+	state: State;
 };
 
-export type Template = {
+export type Template<State = any> = {
 	/** Name of the template */
 	name: string;
 	/** Path to the template from the root of your project
@@ -44,17 +46,21 @@ export type Template = {
 	 * 
 	 *  [API Reference](https://github.com/ieedan/template-factory-js?tab=readme-ov-file#prompts)
 	*/
-	prompts?: Prompt[];
+	prompts?: Prompt<State>[];
 	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
-	templateFiles?: TemplateFile[];
+	templateFiles?: TemplateFile<State>[];
 	/** Runs after files have been copied and replacements made but before features have been selected
 	 *
 	 *  This is generally a good place to generate files.
 	 */
-	copyCompleted?: (opts: TemplateOptions) => Promise<void>;
+	copyCompleted?: (opts: TemplateOptions<State>) => Promise<void>;
+	/** Runs after the outro allowing you to show next steps or run final cleanup code. */
+	completed?: (opts: TemplateOptions<State>) => Promise<void>;
+	/** Initial state for the template */
+	state?: State;
 };
 
-export type Prompt = {
+export type Prompt<State> = {
 	/** What kind of prompt */
 	kind: PromptKind;
 	/** The initial value for the prompt
@@ -67,42 +73,42 @@ export type Prompt = {
 	/** Determines whether the user must select an option (only for `multiselect` prompts) */
 	required?: boolean;
 	/** The options available for the prompt (only for `select` or `multiselect` prompts) */
-	options?: PromptOption[];
-	yes?: Selected;
-	no?: Selected;
+	options?: PromptOption<State>[];
+	yes?: Selected<State>;
+	no?: Selected<State>;
 };
 
 export type PromptKind = 'confirm' | 'select' | 'multiselect';
 
-export type PromptOption = {
+export type PromptOption<State> = {
 	/** Name of option */
 	name: string;
-	select: Selected;
+	select: Selected<State>;
 };
 
-export type Selected = {
+export type Selected<State> = {
 	/** Custom code to run when this selection was made by the user.
 	 *
 	 *  To run more prompts dependent on this one return a list of prompts.
 	 */
-	run: (opts: TemplateOptions) => Promise<Prompt[] | void>;
+	run: (opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
 	/** Message shown while `run` function is executing (not shown while running child prompts) */
 	startMessage?: string;
 	/** Message shown when `run` function is done (not shown while running child prompts) */
 	endMessage?: string;
 };
 
-export type TemplateFile = {
+export type TemplateFile<State> = {
 	/** The path relative to your template
 	 *
 	 *  @example "package.json"
 	 */
 	path: string;
 	/** List of replacements to be made in the file once copied */
-	replacements: Replace[];
+	replacements: Replace<State>[];
 };
 
-export type Replace = {
+export type Replace<State> = {
 	/** Matches this string */
 	match: string;
 	/** Replaces the match string in all locations
@@ -116,10 +122,10 @@ export type Replace = {
 	 *  }
 	 *  ```
 	 */
-	replace: (opts: TemplateOptions) => string;
+	replace: (opts: TemplateOptions<State>) => string;
 };
 
-export type CreateOptions = {
+export type CreateOptions<State = any> = {
 	/** Name of your application */
 	appName: string;
 	/** When enabled will exclude any patterns matched in the .gitignore file
