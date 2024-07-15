@@ -161,7 +161,9 @@ export type CreateOptions = {
 	/** Version of your application
 	 *
 	 *  @example
-	 *  const { version } = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+	 *  const { version } = JSON.parse(
+	 *			fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
+	 *	);
 	 */
 	version: string;
 	/** Customizations for style of the program not effecting logic */
