@@ -39,9 +39,10 @@
 	"sideEffects": false,
 	"type": "module",
 	"scripts": {
-		"format": "npx prettier . --write",
+		"format": "prettier . --write",
 		"build": "unbuild",
-		"check": "tsc --noEmit"
+		"check": "tsc --noEmit",
+		"lint": "prettier --check . && eslint ."
 	},
 	"keywords": [
 		"template",
@@ -59,9 +60,17 @@
 		"simple-git": "^3.25.0"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.7.0",
 		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^20.14.10",
+		"eslint": "^9.7.0",
+		"globals": "^15.8.0",
 		"prettier": "3.3.2",
 		"typescript": "^5.5.3",
+		"typescript-eslint": "^7.16.0",
 		"unbuild": "^2.0.0"
+	},
+	"overrides": {
+		"eslint": "^9.7.0"
 	}
 }

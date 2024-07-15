@@ -9,7 +9,7 @@ export type TemplateOptions<State> = {
 	state: State;
 };
 
-export type Template<State = any> = {
+export type Template<State = unknown> = {
 	/** Name of the template */
 	name: string;
 	/** Path to the template from the root of your project
@@ -77,14 +77,14 @@ export type Prompt<State> = {
 	yes?: Selected<State>;
 	no?: Selected<State>;
 	result?: {
-		/** Runs after any option or yes/no code will also run after any child prompts or 
-		 *  the option or yes/no code. 
-		 * 
+		/** Runs after any option or yes/no code will also run after any child prompts or
+		 *  the option or yes/no code.
+		 *
 		 *  Useful when you need to operate with the result of a prompt.
-		 * 
+		 *
 		 * @param result Result of the parent prompt
 		 * @param opts Options from the template
-		 * @returns 
+		 * @returns
 		 */
 		run: (
 			result: unknown | unknown[],
@@ -144,7 +144,7 @@ export type Replace<State> = {
 	replace: (opts: TemplateOptions<State>) => string;
 };
 
-export type CreateOptions<State = any> = {
+export type CreateOptions = {
 	/** Name of your application */
 	appName: string;
 	/** When enabled will exclude any patterns matched in the .gitignore file
