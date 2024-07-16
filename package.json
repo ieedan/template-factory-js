@@ -1,6 +1,6 @@
 {
 	"name": "template-factory",
-	"version": "0.1.8",
+	"version": "0.2.0",
 	"description": "An unreasonably easy way to create distributable project templates.",
 	"readme": "README.md",
 	"repository": {
@@ -34,6 +34,18 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.mjs"
+		},
+		"./util": {
+			"types": "./dist/util/index.d.ts",
+			"import": "./dist/util/index.mjs"
+		},
+		"./plugins/js/prompts": {
+			"types": "./dist/plugins/js/prompts/index.d.ts",
+			"import": "./dist/plugins/js/prompts/index.mjs"
+		},
+		"./plugins/js/util": {
+			"types": "./dist/plugins/js/util/index.d.ts",
+			"import": "./dist/plugins/js/util/index.mjs"
 		}
 	},
 	"sideEffects": false,
@@ -47,7 +59,11 @@
 	"keywords": [
 		"template",
 		"project",
-		"cli"
+		"cli",
+		"boilerplate",
+		"commander",
+		"create",
+		"new"
 	],
 	"author": "Aidan Bleser",
 	"license": "BSD-2-Clause",
@@ -55,6 +71,7 @@
 		"@clack/prompts": "^0.7.0",
 		"chalk": "^5.3.0",
 		"commander": "^12.1.0",
+		"execa": "^9.3.0",
 		"fs-extra": "^11.2.0",
 		"ignore": "^5.3.1",
 		"simple-git": "^3.25.0"

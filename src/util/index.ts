@@ -16,6 +16,4 @@ const relative = (relativePath: string, importMetaURL: string) => {
 	return path.replaceAll('%20', ' ');
 };
 
-const util = { relative };
-
-export default util;
+export { relative };

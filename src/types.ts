@@ -174,3 +174,5 @@ export type CreateOptions = {
 		outro?: ({ appName, version }: { appName: string; version: string }) => Promise<string>;
 	};
 };
+
+export type PM = 'npm' | 'pnpm' | 'yarn' | 'bun';
