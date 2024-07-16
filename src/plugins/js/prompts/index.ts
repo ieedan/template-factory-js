@@ -61,6 +61,8 @@ const installDependencies = <T>({
 					await execa({ cwd: dir })`${pm} install`;
 				}
 			},
+			startMessage: 'Installing dependencies',
+			endMessage: 'Installed dependencies',
 		},
 	};
 };
