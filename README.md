@@ -58,7 +58,8 @@ Next lets write the program in `index.js` (If you are using TypeScript then `ind
 
 ```js
 #!/usr/bin/env node
-import { create, util } from 'template-factory';
+import { create } from 'template-factory';
+import * as util from 'template-factory/util';
 
 const main = async () => {
   await create({
@@ -117,7 +118,8 @@ To do this we will need to add a [prompt](#prompts)!
 #!/usr/bin/env node
 // we add execa here to make command execution easy
 import { execa } from 'execa';
-import { create, util } from 'template-factory';
+import { create } from 'template-factory';
+import * as util from 'template-factory/util';
 
 const main = async () => {
   await create({
@@ -529,7 +531,11 @@ await create({
 
 Util contains necessary utilities to use the package.
 
-#### util.relative
+```ts
+import * as util from 'template-factory/util';
+```
+
+#### relative
 
 This function helps make sure your paths to your templates or other files that should be located
 based on the directory of your project are resolved correctly.
@@ -543,6 +549,61 @@ await create({
       // resolves to the absolute path for templates/sveltekit
       path: util.relative('templates/sveltekit', import.meta.url),
       flag: 'sveltekit',
+    },
+  ],
+});
+```
+
+## Plugins
+
+As more things are built with **template-factory** we find times that we repeat ourselves. When
+those instances of code would be beneficial to users of the library we include them as plugins.
+
+Plugins are separated by language so plugins for creating JavaScript/TypeScript templates will be
+under `template-factory/plugins/js`.
+
+### JS
+
+#### util
+
+Contains some utility functions that are useful for working with JavaScript templates.
+
+##### addDependencies/removeDependencies
+
+These functions make it easy to add and remove dependencies without installing and creating the
+`node_modules` folder. This saves a lot of time compared to waiting for things to install.
+
+###### Example
+
+```ts
+import { addDependencies, removeDependencies } from 'template-factory/plugins/js/util';
+
+addDependencies('dev', { pm: 'npm', dir: '.' }, 'prettier', 'eslint');
+removeDependencies(dir, 'prettier', 'eslint');
+```
+
+#### prompts
+
+Contains common prompts for creating prompts for JavaScript templates.
+
+##### installDependencies
+
+Prompts the user to ask them if they would like to install dependencies. When the
+`choosePackageManager` option is set to true, once the user says yes to install dependencies it will
+ask them what package manager they would like to use. Once selected it will install run the install
+command for the selected package manager.
+
+It returns a prompt and should be injected in the `prompts` property of a template.
+
+```ts
+import { installDependencies } from 'template-factory/plugins/js/prompts';
+
+await create({
+  //...
+  templates: [
+    {
+      //...
+      prompts: [installDependencies({ pm: 'npm' })],
     },
   ],
 });

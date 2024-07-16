@@ -15,7 +15,6 @@ import color from 'chalk';
 import path from 'node:path';
 import fs from 'fs-extra';
 import ignore from 'ignore';
-import util from './util';
 import simpleGit from 'simple-git';
 
 /** Just here for internal functions */
@@ -415,6 +414,6 @@ const run = async <State>(
 	return prompts;
 };
 
-export { create, util };
+export { create };
 
 export * from './types';
