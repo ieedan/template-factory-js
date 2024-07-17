@@ -418,7 +418,7 @@ const runPrompts = async <State>(
 			if (resultPrompts) {
 				await runPrompts(resultPrompts, loading, opts);
 			}
-		} else if (prompt.kind == "password") {
+		} else if (prompt.kind == 'password') {
 			const result = await password({
 				message: prompt.message,
 				validate: prompt.validate,
