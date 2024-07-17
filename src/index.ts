@@ -9,6 +9,7 @@ import {
 	multiselect,
 	spinner,
 	confirm,
+	password,
 } from '@clack/prompts';
 import { CreateOptions, Prompt, Selected, Template, TemplateOptions } from './types';
 import color from 'chalk';
@@ -395,6 +396,31 @@ const runPrompts = async <State>(
 				message: prompt.message,
 				initialValue: prompt.initialValue,
 				placeholder: prompt.placeholder,
+				validate: prompt.validate,
+			});
+
+			if (isCancel(result)) {
+				cancel('Cancelled.');
+				process.exit(0);
+			}
+
+			const command: Selected<State> = {
+				run: async (opts) => {
+					if (!prompt.result) return;
+					return await prompt.result.run(result, opts);
+				},
+				startMessage: prompt.result.startMessage,
+				endMessage: prompt.result.endMessage,
+			};
+
+			const resultPrompts = await run(command, loading, opts);
+
+			if (resultPrompts) {
+				await runPrompts(resultPrompts, loading, opts);
+			}
+		} else if (prompt.kind == "password") {
+			const result = await password({
+				message: prompt.message,
 				validate: prompt.validate,
 			});
 

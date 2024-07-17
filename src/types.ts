@@ -64,7 +64,8 @@ export type Prompt<State> =
 	| ({ kind: 'select' } & SelectPrompt<State>)
 	| ({ kind: 'multiselect' } & MultiselectPrompt<State>)
 	| ({ kind: 'confirm' } & ConfirmPrompt<State>)
-	| ({ kind: 'text' } & TextPrompt<State>);
+	| ({ kind: 'text' } & TextPrompt<State>)
+	| ({ kind: 'password' } & PasswordPrompt<State>);
 
 export type SelectPrompt<State> = {
 	/** The initial value for the prompt
@@ -162,6 +163,29 @@ export type TextPrompt<State> = {
 	message: string;
 	/** Value shown as a placeholder */
 	placeholder?: string;
+	/** Allows you to validate the user input */
+	validate?: (value: string) => string | void;
+	result: {
+		/** Runs after any option or yes/no code will also run after any child prompts or
+		 *  the option or yes/no code.
+		 *
+		 *  Useful when you need to operate with the result of a prompt.
+		 *
+		 * @param result Result of the parent prompt
+		 * @param opts Options from the template
+		 * @returns
+		 */
+		run: (result: string, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
+		/** Message shown while `run` function is executing (not shown while running child prompts) */
+		startMessage?: string;
+		/** Message shown when `run` function is done (not shown while running child prompts) */
+		endMessage?: string;
+	};
+};
+
+export type PasswordPrompt<State> = {
+	/** Message when prompt is shown */
+	message: string;
 	/** Allows you to validate the user input */
 	validate?: (value: string) => string | void;
 	result: {
