@@ -37,7 +37,7 @@ const addDependencies = async (
 	const packageJsonFile = JSON.parse((await fs.readFile(file)).toString());
 
 	for (const pack of packages) {
-		if (pack.scope == "dev") {
+		if (pack.scope == 'dev') {
 			packageJsonFile.devDependencies[pack.name] = pack.version;
 		} else {
 			packageJsonFile.dependencies[pack.name] = pack.version;
