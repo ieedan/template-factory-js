@@ -304,6 +304,7 @@ const runPrompts = async <State>(
 				options: prompt.options.map((option) => ({
 					label: option.name,
 					value: option.name,
+					hint: option.hint,
 				})),
 			});
 
@@ -351,6 +352,7 @@ const runPrompts = async <State>(
 				options: prompt.options.map((option) => ({
 					label: option.name,
 					value: option.name,
+					hint: option.hint,
 				})),
 			});
 

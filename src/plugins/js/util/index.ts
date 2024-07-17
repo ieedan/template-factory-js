@@ -1,4 +1,3 @@
-import { execa, ExecaError } from 'execa';
 import fs from 'fs-extra';
 import path from 'node:path';
 
@@ -30,25 +29,24 @@ const removeDependencies = async (dir: string, ...packages: string[]) => {
  * @param packages The packages to be added
  */
 const addDependencies = async (
-	scope: 'dev' | 'regular',
-	{ pm, dir }: { pm: string; dir: string },
-	...packages: string[]
+	dir: string,
+	...packages: { name: string; version: string; scope: 'dev' | 'regular' }[]
 ) => {
-	const flags = [
-		scope == 'dev' ? '--save-dev' : '--save',
-		'--package-lock-only',
-		'--no-package-lock',
-	];
+	const file = path.join(dir, 'package.json');
 
-	try {
-		await execa(pm, ['install', ...flags, ...packages], {
-			cwd: dir,
-		});
-	} catch (error) {
-		if (error instanceof ExecaError) {
-			console.error(error);
+	const packageJsonFile = JSON.parse((await fs.readFile(file)).toString());
+
+	for (const pack of packages) {
+		if (pack.scope == 'dev') {
+			packageJsonFile.devDependencies[pack.name] = pack.version;
+		} else {
+			packageJsonFile.dependencies[pack.name] = pack.version;
 		}
 	}
+
+	const newFile = JSON.stringify(packageJsonFile, null, 2);
+
+	await fs.writeFile(file, newFile);
 };
 
 export { addDependencies, removeDependencies };

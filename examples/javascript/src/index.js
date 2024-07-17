@@ -1,5 +1,5 @@
 import { create } from 'template-factory';
-import * as util from 'template-factory/util'
+import * as util from 'template-factory/util';
 import fs from 'fs-extra';
 
 const main = async () => {
