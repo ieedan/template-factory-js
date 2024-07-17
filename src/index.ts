@@ -298,7 +298,6 @@ const runPrompts = async <State>(
 				}
 			}
 		} else if (prompt.kind == 'select') {
-			if (!prompt.options) throw new Error(`Select prompts must have specified options.`);
 			const selection = await select({
 				message: prompt.message,
 				initialValue: prompt.initialValue,
@@ -345,9 +344,6 @@ const runPrompts = async <State>(
 				}
 			}
 		} else if (prompt.kind == 'multiselect') {
-			if (!prompt.options)
-				throw new Error(`multiselect prompts must have specified options.`);
-
 			const selection = await multiselect({
 				message: prompt.message,
 				required: prompt.required ?? false,
@@ -391,6 +387,33 @@ const runPrompts = async <State>(
 				if (resultPrompts) {
 					await runPrompts(resultPrompts, loading, opts);
 				}
+			}
+		} else if (prompt.kind == 'text') {
+			const result = await text({
+				message: prompt.message,
+				initialValue: prompt.initialValue,
+				placeholder: prompt.placeholder,
+				validate: prompt.validate,
+			});
+
+			if (isCancel(result)) {
+				cancel('Cancelled.');
+				process.exit(0);
+			}
+
+			const command: Selected<State> = {
+				run: async (opts) => {
+					if (!prompt.result) return;
+					return await prompt.result.run(result, opts);
+				},
+				startMessage: prompt.result.startMessage,
+				endMessage: prompt.result.endMessage,
+			};
+
+			const resultPrompts = await run(command, loading, opts);
+
+			if (resultPrompts) {
+				await runPrompts(resultPrompts, loading, opts);
 			}
 		}
 	}

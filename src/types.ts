@@ -60,20 +60,78 @@ export type Template<State = unknown> = {
 	state?: State;
 };
 
-export type Prompt<State> = {
-	/** What kind of prompt */
-	kind: PromptKind;
+export type Prompt<State> =
+	| ({ kind: 'select' } & SelectPrompt<State>)
+	| ({ kind: 'multiselect' } & MultiselectPrompt<State>)
+	| ({ kind: 'confirm' } & ConfirmPrompt<State>)
+	| ({ kind: 'text' } & TextPrompt<State>);
+
+export type SelectPrompt<State> = {
 	/** The initial value for the prompt
 	 *
 	 *  For multiselect prompts this will be an array of option names
 	 */
-	initialValue?: unknown | unknown[];
+	initialValue?: string;
 	/** Message when prompt is shown */
 	message: string;
-	/** Determines whether the user must select an option (only for `multiselect` prompts) */
+	/** The options available for the prompt (only for `select` or `multiselect` prompts) */
+	options: PromptOption<State>[];
+	result?: {
+		/** Runs after any option or yes/no code will also run after any child prompts or
+		 *  the option or yes/no code.
+		 *
+		 *  Useful when you need to operate with the result of a prompt.
+		 *
+		 * @param result Result of the parent prompt
+		 * @param opts Options from the template
+		 * @returns
+		 */
+		run: (result: string, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
+		/** Message shown while `run` function is executing (not shown while running child prompts) */
+		startMessage?: string;
+		/** Message shown when `run` function is done (not shown while running child prompts) */
+		endMessage?: string;
+	};
+};
+
+export type MultiselectPrompt<State> = {
+	/** The initial value for the prompt
+	 *
+	 *  For multiselect prompts this will be an array of option names
+	 */
+	initialValue?: string[];
+	/** Message when prompt is shown */
+	message: string;
+	/** Determines whether the user is required to select an option */
 	required?: boolean;
 	/** The options available for the prompt (only for `select` or `multiselect` prompts) */
-	options?: PromptOption<State>[];
+	options: PromptOption<State>[];
+	result?: {
+		/** Runs after any option or yes/no code will also run after any child prompts or
+		 *  the option or yes/no code.
+		 *
+		 *  Useful when you need to operate with the result of a prompt.
+		 *
+		 * @param result Result of the parent prompt
+		 * @param opts Options from the template
+		 * @returns
+		 */
+		run: (result: string[], opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
+		/** Message shown while `run` function is executing (not shown while running child prompts) */
+		startMessage?: string;
+		/** Message shown when `run` function is done (not shown while running child prompts) */
+		endMessage?: string;
+	};
+};
+
+export type ConfirmPrompt<State> = {
+	/** The initial value for the prompt
+	 *
+	 *  For multiselect prompts this will be an array of option names
+	 */
+	initialValue?: boolean;
+	/** Message when prompt is shown */
+	message: string;
 	yes?: Selected<State>;
 	no?: Selected<State>;
 	result?: {
@@ -86,10 +144,7 @@ export type Prompt<State> = {
 		 * @param opts Options from the template
 		 * @returns
 		 */
-		run: (
-			result: unknown | unknown[],
-			opts: TemplateOptions<State>
-		) => Promise<Prompt<State>[] | void>;
+		run: (result: boolean, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
 		/** Message shown while `run` function is executing (not shown while running child prompts) */
 		startMessage?: string;
 		/** Message shown when `run` function is done (not shown while running child prompts) */
@@ -97,11 +152,41 @@ export type Prompt<State> = {
 	};
 };
 
-export type PromptKind = 'confirm' | 'select' | 'multiselect';
+export type TextPrompt<State> = {
+	/** The initial value for the prompt
+	 *
+	 *  For multiselect prompts this will be an array of option names
+	 */
+	initialValue?: string;
+	/** Message when prompt is shown */
+	message: string;
+	/** Value shown as a placeholder */
+	placeholder?: string;
+	/** Allows you to validate the user input */
+	validate?: (value: string) => string | void;
+	result: {
+		/** Runs after any option or yes/no code will also run after any child prompts or
+		 *  the option or yes/no code.
+		 *
+		 *  Useful when you need to operate with the result of a prompt.
+		 *
+		 * @param result Result of the parent prompt
+		 * @param opts Options from the template
+		 * @returns
+		 */
+		run: (result: string, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
+		/** Message shown while `run` function is executing (not shown while running child prompts) */
+		startMessage?: string;
+		/** Message shown when `run` function is done (not shown while running child prompts) */
+		endMessage?: string;
+	};
+};
 
 export type PromptOption<State> = {
 	/** Name of option */
 	name: string;
+	/** Hint to be shown to the user next to the name of the option */
+	hint?: string;
 	select?: Selected<State>;
 };
 

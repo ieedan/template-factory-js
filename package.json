@@ -1,6 +1,6 @@
 {
 	"name": "template-factory",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "An unreasonably easy way to create distributable project templates.",
 	"readme": "README.md",
 	"repository": {
