@@ -67,8 +67,8 @@ const create = async ({
 	let dir = '.';
 
 	if (projectName) {
-		projectName = path.basename(projectName);
 		dir = projectName;
+		projectName = path.basename(projectName);
 	} else {
 		const dirResult = await text({
 			defaultValue: '.',
