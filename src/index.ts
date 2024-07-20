@@ -215,30 +215,54 @@ const create = async ({
 
 	loading.stop(`Created ${projectName}`);
 
-	if (template.templateFiles) {
-		for (const file of template.templateFiles) {
-			const filePath = path.join(dir, file.path);
-			const content = (await fs.readFile(filePath)).toString();
-
-			let newContent = '';
-
-			file.replacements.forEach((replacement) => {
-				newContent = content.replace(
-					replacement.match,
-					replacement.replace(templateOptions)
-				);
-			});
-
-			await fs.writeFile(filePath, newContent);
-		}
-	}
-
 	if (template.copyCompleted) {
 		await template.copyCompleted(templateOptions);
 	}
 
 	if (template.prompts) {
 		await runPrompts(template.prompts, loading, templateOptions);
+	}
+
+	if (template.files) {
+		for (const file of template.files) {
+			const filePath = path.join(dir, file.path);
+
+			if (!(await fs.exists(filePath))) {
+				program.error(
+					color.red(
+						`ERROR: The file ${filePath} does not exist. Please provide a valid path.`
+					)
+				);
+			}
+
+			const content = (await fs.readFile(filePath)).toString();
+
+			let newFile = { name: '', content: '' };
+			if (file.type == 'json') {
+				let objectContent = await file.content(
+					{
+						name: path.basename(filePath),
+						content: JSON.parse(content),
+					},
+					templateOptions
+				);
+
+				newFile.name = objectContent.name;
+				newFile.content = JSON.stringify(objectContent.content, null, 2);
+			} else {
+				newFile = await file.content(
+					{ name: path.basename(filePath), content },
+					templateOptions
+				);
+			}
+
+			// Rename file if returned name is different
+			if (newFile.name != path.basename(filePath)) {
+				await fs.rename(filePath, path.join(dir, newFile.name));
+			}
+
+			await fs.writeFile(filePath, newFile.content);
+		}
 	}
 
 	outro(

@@ -191,23 +191,27 @@ open an [issue](https://github.com/ieedan/template-factory-js/issues/new).
 When creating a template you must provide a name, flag and either the path or repo property.
 
 ```ts
-export type Template = {
+export type Template<State = unknown> = {
   // Name of the template
   name: string;
-  // local path to the template
+  // Path to the template from the root of your project
   path?: string;
-  // git repository EX: https://github.com/ieedan/create.git
+  // Repository to clone as a template
   repo?: string;
-  // what should the value of the flag be to select this template
+  // The value for the `-t` / `--template` used to select this template
   flag: string;
-  // do not include these files in the new project
+  // Files/Directories that should be excluded from being copied
   excludeFiles?: string[];
-  // Show user prompts to add options or features
-  prompts?: Prompt[];
-  // If you want to make replacements to content of the files
-  templateFiles?: TemplateFile[];
-  // Runs once the files have been copied to the specified directory
-  copyCompleted?: (opts: TemplateOptions) => Promise<void>;
+  // Specify prompts that are used to select options or features
+  prompts?: Prompt<State>[];
+  // Files allow you to make modifications to files in the project in a more ergonomic way
+  files?: File<State>[];
+  // Runs after files have been copied but before features have been selected
+  copyCompleted?: (opts: TemplateOptions<State>) => Promise<void>;
+  // Runs after the outro allowing you to show next steps or run final cleanup code.
+  completed?: (opts: TemplateOptions<State>) => Promise<void>;
+  // Initial state for the template
+  state?: State;
 };
 ```
 
@@ -227,8 +231,10 @@ options to add to your templates extremely easy.
 There are currently three kinds of prompts:
 
 - **confirm** - yes or no
-- **multiselect** - select zero, one, or multiple of the provided options
 - **select** - select one of the provided options
+- **multiselect** - select zero, one, or multiple of the provided options
+- **text** - get a validated text input from the user
+- **password** - get a validated text input from the user while also hiding it
 
 When creating a prompt you add it to the list of prompts for your template:
 
@@ -324,6 +330,28 @@ For **select** and **multiselect** prompts your code should look like this:
 }
 ```
 
+**text** and **password** prompts will look like this:
+
+```js
+{
+  kind: 'text',
+  message: 'Enter your Database URL',
+  // what to do on `yes`
+  validate: (value) => {
+    if (value == "") {
+      return "Please enter a Database URL";
+    }
+  },
+  result: {
+    run: async (result) => {
+      // add to .env
+    },
+    startMessage: "Setting up your Database URL",
+    endMessage: "Set up your Database URL",
+  }
+}
+```
+
 #### Recursive Prompts
 
 Recursive prompts allow you to run prompts on prompts. This is useful when you would like to create
@@ -407,13 +435,17 @@ await create({
 });
 ```
 
-### Replace file content
+### Manipulate Files
 
-Sometimes you want to replace the content of a file such as the name of the project in a package
-config file.
+Sometimes it is nice to be able to easily rename a file or modify its contents. **template-factory**
+provides an API for doing this through the `files` property on the template object.
 
-**template-factory** provides an api for you to do this through the `templateFiles` property on a
-template.
+In the `content` function you will be provided with the name of the file and the content of the
+file. Certain file types such as JSON come pre-parsed for you. You can then return the new content
+and new name of the file once you've made your changes.
+
+Here is an example of us changing the `bin` property of our `package.json` file based on the
+template state.
 
 ```js
 await create({
@@ -422,31 +454,22 @@ await create({
     {
       name: 'Notes',
       //...
-      templateFiles: [
+      files: [
         {
           // path to the file you want to make the replacement
           path: 'package.json',
-          replacements: [
-            {
-              // matches this
-              match: 'template-name',
-              // replace with this
-              replace: ({ projectName }) => projectName,
-            },
-          ],
+          type: 'json',
+          content: ({ name, content }, { state }) => {
+            content.bin = state.binPath;
+
+            return content;
+          },
         },
       ],
     },
   ],
 });
 ```
-
-Your replacements have a `match` property and a `replace` function.
-
-The match property specifies the text that should be replaced.
-
-The replace function should return the text to replace it with. It also calls with the `projectName`
-and `dir` (working directory) so that you can use those to make your replacements.
 
 ### Prevent files from being copied
 
