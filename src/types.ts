@@ -47,8 +47,8 @@ export type Template<State = unknown> = {
 	 *  [API Reference](https://github.com/ieedan/template-factory-js?tab=readme-ov-file#prompts)
 	 */
 	prompts?: Prompt<State>[];
-	/** Template files allow you to use an existing file and replace code inside based on the newly created project */
-	templateFiles?: TemplateFile<State>[];
+	/** Files allow you to make modifications to files in the project in a more ergonomic way */
+	files?: File<State>[];
 	/** Runs after files have been copied and replacements made but before features have been selected
 	 *
 	 *  This is generally a good place to generate files.
@@ -77,22 +77,8 @@ export type SelectPrompt<State> = {
 	message: string;
 	/** The options available for the prompt (only for `select` or `multiselect` prompts) */
 	options: PromptOption<State>[];
-	result?: {
-		/** Runs after any option or yes/no code will also run after any child prompts or
-		 *  the option or yes/no code.
-		 *
-		 *  Useful when you need to operate with the result of a prompt.
-		 *
-		 * @param result Result of the parent prompt
-		 * @param opts Options from the template
-		 * @returns
-		 */
-		run: (result: string, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
-		/** Message shown while `run` function is executing (not shown while running child prompts) */
-		startMessage?: string;
-		/** Message shown when `run` function is done (not shown while running child prompts) */
-		endMessage?: string;
-	};
+	/** Allows you to run code based on the result of a prompt */
+	result?: PromptResult<State, string>;
 };
 
 export type MultiselectPrompt<State> = {
@@ -107,22 +93,7 @@ export type MultiselectPrompt<State> = {
 	required?: boolean;
 	/** The options available for the prompt (only for `select` or `multiselect` prompts) */
 	options: PromptOption<State>[];
-	result?: {
-		/** Runs after any option or yes/no code will also run after any child prompts or
-		 *  the option or yes/no code.
-		 *
-		 *  Useful when you need to operate with the result of a prompt.
-		 *
-		 * @param result Result of the parent prompt
-		 * @param opts Options from the template
-		 * @returns
-		 */
-		run: (result: string[], opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
-		/** Message shown while `run` function is executing (not shown while running child prompts) */
-		startMessage?: string;
-		/** Message shown when `run` function is done (not shown while running child prompts) */
-		endMessage?: string;
-	};
+	result?: PromptResult<State, string[]>;
 };
 
 export type ConfirmPrompt<State> = {
@@ -135,22 +106,7 @@ export type ConfirmPrompt<State> = {
 	message: string;
 	yes?: Selected<State>;
 	no?: Selected<State>;
-	result?: {
-		/** Runs after any option or yes/no code will also run after any child prompts or
-		 *  the option or yes/no code.
-		 *
-		 *  Useful when you need to operate with the result of a prompt.
-		 *
-		 * @param result Result of the parent prompt
-		 * @param opts Options from the template
-		 * @returns
-		 */
-		run: (result: boolean, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
-		/** Message shown while `run` function is executing (not shown while running child prompts) */
-		startMessage?: string;
-		/** Message shown when `run` function is done (not shown while running child prompts) */
-		endMessage?: string;
-	};
+	result?: PromptResult<State, boolean>;
 };
 
 export type TextPrompt<State> = {
@@ -165,22 +121,7 @@ export type TextPrompt<State> = {
 	placeholder?: string;
 	/** Allows you to validate the user input */
 	validate?: (value: string) => string | void;
-	result: {
-		/** Runs after any option or yes/no code will also run after any child prompts or
-		 *  the option or yes/no code.
-		 *
-		 *  Useful when you need to operate with the result of a prompt.
-		 *
-		 * @param result Result of the parent prompt
-		 * @param opts Options from the template
-		 * @returns
-		 */
-		run: (result: string, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
-		/** Message shown while `run` function is executing (not shown while running child prompts) */
-		startMessage?: string;
-		/** Message shown when `run` function is done (not shown while running child prompts) */
-		endMessage?: string;
-	};
+	result: PromptResult<State, string>;
 };
 
 export type PasswordPrompt<State> = {
@@ -188,22 +129,24 @@ export type PasswordPrompt<State> = {
 	message: string;
 	/** Allows you to validate the user input */
 	validate?: (value: string) => string | void;
-	result: {
-		/** Runs after any option or yes/no code will also run after any child prompts or
-		 *  the option or yes/no code.
-		 *
-		 *  Useful when you need to operate with the result of a prompt.
-		 *
-		 * @param result Result of the parent prompt
-		 * @param opts Options from the template
-		 * @returns
-		 */
-		run: (result: string, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
-		/** Message shown while `run` function is executing (not shown while running child prompts) */
-		startMessage?: string;
-		/** Message shown when `run` function is done (not shown while running child prompts) */
-		endMessage?: string;
-	};
+	result: PromptResult<State, string>;
+};
+
+export type PromptResult<State, T> = {
+	/** Runs after any option or yes/no code will also run after any child prompts or
+	 *  the option or yes/no code.
+	 *
+	 *  Useful when you need to operate with the result of a prompt.
+	 *
+	 * @param result Result of the parent prompt
+	 * @param opts Options from the template
+	 * @returns
+	 */
+	run: (result: T, opts: TemplateOptions<State>) => Promise<Prompt<State>[] | void>;
+	/** Message shown while `run` function is executing (not shown while running child prompts) */
+	startMessage?: string;
+	/** Message shown when `run` function is done (not shown while running child prompts) */
+	endMessage?: string;
 };
 
 export type PromptOption<State> = {
@@ -226,31 +169,34 @@ export type Selected<State> = {
 	endMessage?: string;
 };
 
-export type TemplateFile<State> = {
+export type ContentFunction<State, ContentType> = {
+	content: (
+		info: { name: string; content: ContentType },
+		opts: TemplateOptions<State>
+	) => Promise<{ name: string; content: ContentType }>;
+};
+
+export type File<State> = {
 	/** The path relative to your template
 	 *
 	 *  @example "package.json"
 	 */
 	path: string;
-	/** List of replacements to be made in the file once copied */
-	replacements: Replace<State>[];
-};
-
-export type Replace<State> = {
-	/** Matches this string */
-	match: string;
-	/** Replaces the match string in all locations
+	/** This option will create the file if it doesn't exist. If set to false it will throw and error if the file doesn't exist.
 	 *
-	 *  @example
-	 *  ```ts
-	 *  // Replaces the placeholder name with the name of the project
-	 *  const replacement = {
-	 *      match: 'placeholder-project-name'
-	 *      replace: ({ projectName }) => projectName
-	 *  }
-	 *  ```
+	 *  @default true
 	 */
-	replace: (opts: TemplateOptions<State>) => string;
+	createIfNotExists?: boolean;
+} & (
+	| ({ type: 'json' } & ContentFunction<State, object>)
+	| ({ type: 'text' } & ContentFunction<State, string>)
+);
+
+export type AppInfo = {
+	/** The name you provided to the `appName` property */
+	appName: string;
+	/** The version you provided to the `version` property */
+	version: string;
 };
 
 export type CreateOptions = {
@@ -267,7 +213,7 @@ export type CreateOptions = {
 	 *  If only a single template is provided it will skip asking the user to select a template.
 	 */
 	templates: Template[];
-	/** Version of your application
+	/** Version of your application ex: (1.0.0)
 	 *
 	 *  @example
 	 *  const { version } = JSON.parse(
@@ -278,9 +224,9 @@ export type CreateOptions = {
 	/** Customizations for style of the program not effecting logic */
 	customization?: {
 		/** Runs on program startup this allows you to customize the message shown by the `intro()` function */
-		intro?: ({ appName, version }: { appName: string; version: string }) => Promise<string>;
+		intro?: (info: AppInfo) => Promise<string>;
 		/** Runs on program startup this allows you to customize the message shown by the `outro()` function */
-		outro?: ({ appName, version }: { appName: string; version: string }) => Promise<string>;
+		outro?: (info: AppInfo) => Promise<string>;
 	};
 };
 

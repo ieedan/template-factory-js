@@ -12,8 +12,12 @@ const removeDependencies = async (dir: string, ...packages: string[]) => {
 	const packageJsonFile = JSON.parse((await fs.readFile(file)).toString());
 
 	for (const pack of packages) {
-		packageJsonFile.devDependencies[pack] = undefined;
-		packageJsonFile.dependencies[pack] = undefined;
+		if (packageJsonFile.devDependencies) {
+			packageJsonFile.devDependencies[pack] = undefined;
+		}
+		if (packageJsonFile.dependencies) {
+			packageJsonFile.dependencies[pack] = undefined;
+		}
 	}
 
 	const newFile = JSON.stringify(packageJsonFile, null, 2);
@@ -38,8 +42,14 @@ const addDependencies = async (
 
 	for (const pack of packages) {
 		if (pack.scope == 'dev') {
+			if (!packageJsonFile.devDependencies) {
+				packageJsonFile.devDependencies = {};
+			}
 			packageJsonFile.devDependencies[pack.name] = pack.version;
 		} else {
+			if (!packageJsonFile.dependencies) {
+				packageJsonFile.dependencies = {};
+			}
 			packageJsonFile.dependencies[pack.name] = pack.version;
 		}
 	}
