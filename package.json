@@ -7,6 +7,9 @@
 		"type": "git",
 		"url": "git+https://github.com/ieedan/template-factory-js.git"
 	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"main": "./dist/index.mjs",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
