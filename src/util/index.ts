@@ -12,8 +12,7 @@ const relative = (relativePath: string, importMetaURL: string) => {
 	const url = new URL(relativePath, importMetaURL);
 	const path = url.pathname.slice(1);
 
-	// remove whitespace
-	return path.replaceAll('%20', ' ');
+	return decodeURIComponent(path);
 };
 
 export { relative };

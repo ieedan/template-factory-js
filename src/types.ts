@@ -182,8 +182,13 @@ export type File<State> = {
 	 *  @example "package.json"
 	 */
 	path: string;
+	/** This option will create the file if it doesn't exist. If set to false it will throw and error if the file doesn't exist.
+	 *
+	 *  @default true
+	 */
+	createIfNotExists?: boolean;
 } & (
-	| ({ type: 'json' } & ContentFunction<State, Object>)
+	| ({ type: 'json' } & ContentFunction<State, object>)
 	| ({ type: 'text' } & ContentFunction<State, string>)
 );
 

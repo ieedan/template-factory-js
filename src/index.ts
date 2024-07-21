@@ -228,18 +228,22 @@ const create = async ({
 			const filePath = path.join(dir, file.path);
 
 			if (!(await fs.exists(filePath))) {
-				program.error(
-					color.red(
-						`ERROR: The file ${filePath} does not exist. Please provide a valid path.`
-					)
-				);
+				if (file.createIfNotExists == undefined || file.createIfNotExists) {
+					await fs.createFile(filePath);
+				} else {
+					program.error(
+						color.red(
+							`ERROR: The file ${filePath} does not exist. Please provide a valid path.`
+						)
+					);
+				}
 			}
 
 			const content = (await fs.readFile(filePath)).toString();
 
 			let newFile = { name: '', content: '' };
 			if (file.type == 'json') {
-				let objectContent = await file.content(
+				const objectContent = await file.content(
 					{
 						name: path.basename(filePath),
 						content: JSON.parse(content),
